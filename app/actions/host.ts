@@ -73,5 +73,5 @@ export async function signUpHost(_prevState: HostSignupState, formData: FormData
     return { error: CONFIG_ERROR };
   }
 
-  redirect('/host-signup/thanks');
+  redirect(`/host-signup/thanks?email=${encodeURIComponent(email)}`);
 }
