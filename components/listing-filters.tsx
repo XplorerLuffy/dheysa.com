@@ -2,6 +2,7 @@
 
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
+import { MapPin, CalendarDays, SlidersHorizontal, type LucideIcon } from 'lucide-react';
 import { todayISO, addDays } from '@/lib/format';
 
 export function ListingFilters() {
@@ -31,65 +32,79 @@ export function ListingFilters() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="grid grid-cols-2 gap-3 rounded-2xl border border-brand-100 bg-white p-4 sm:grid-cols-3 lg:grid-cols-6"
+      className="flex flex-wrap items-end gap-2 rounded-2xl border border-brand-950/5 bg-white p-3 shadow-soft"
     >
-      <label className="col-span-2 flex flex-col gap-1 text-xs font-medium text-brand-500 lg:col-span-1">
-        Location
+      <Field icon={MapPin} label="Location">
         <input
           value={location}
           onChange={(e) => setLocation(e.target.value)}
           placeholder="Any"
-          className="rounded-lg border border-brand-200 px-3 py-2 text-sm text-brand-800"
+          className="w-32 border-0 bg-transparent p-0 text-sm text-brand-900 placeholder:text-brand-300 focus:outline-none focus:ring-0"
         />
-      </label>
-      <label className="flex flex-col gap-1 text-xs font-medium text-brand-500">
-        Min price
+      </Field>
+      <Field label="Min price">
         <input
           type="number"
           min={0}
           value={minPrice}
           onChange={(e) => setMinPrice(e.target.value)}
-          className="rounded-lg border border-brand-200 px-3 py-2 text-sm text-brand-800"
+          className="w-20 border-0 bg-transparent p-0 text-sm text-brand-900 focus:outline-none focus:ring-0"
         />
-      </label>
-      <label className="flex flex-col gap-1 text-xs font-medium text-brand-500">
-        Max price
+      </Field>
+      <Field label="Max price">
         <input
           type="number"
           min={0}
           value={maxPrice}
           onChange={(e) => setMaxPrice(e.target.value)}
-          className="rounded-lg border border-brand-200 px-3 py-2 text-sm text-brand-800"
+          className="w-20 border-0 bg-transparent p-0 text-sm text-brand-900 focus:outline-none focus:ring-0"
         />
-      </label>
-      <label className="flex flex-col gap-1 text-xs font-medium text-brand-500">
-        Check-in
+      </Field>
+      <Field icon={CalendarDays} label="Check-in">
         <input
           type="date"
           min={todayISO()}
           value={checkIn}
           onChange={(e) => setCheckIn(e.target.value)}
-          className="rounded-lg border border-brand-200 px-3 py-2 text-sm text-brand-800"
+          className="w-32 border-0 bg-transparent p-0 text-sm text-brand-900 focus:outline-none focus:ring-0"
         />
-      </label>
-      <label className="flex flex-col gap-1 text-xs font-medium text-brand-500">
-        Check-out
+      </Field>
+      <Field icon={CalendarDays} label="Check-out">
         <input
           type="date"
           min={checkIn ? addDays(checkIn, 1) : todayISO()}
           value={checkOut}
           onChange={(e) => setCheckOut(e.target.value)}
-          className="rounded-lg border border-brand-200 px-3 py-2 text-sm text-brand-800"
+          className="w-32 border-0 bg-transparent p-0 text-sm text-brand-900 focus:outline-none focus:ring-0"
         />
-      </label>
-      <div className="flex items-end">
-        <button
-          type="submit"
-          className="w-full rounded-lg bg-brand-600 px-3 py-2 text-sm font-semibold text-white hover:bg-brand-700"
-        >
-          Update
-        </button>
-      </div>
+      </Field>
+      <button
+        type="submit"
+        className="ml-auto flex items-center gap-1.5 rounded-xl bg-brand-800 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-900"
+      >
+        <SlidersHorizontal size={14} />
+        Update
+      </button>
     </form>
+  );
+}
+
+function Field({
+  icon: Icon,
+  label,
+  children,
+}: {
+  icon?: LucideIcon;
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-center gap-2 rounded-xl border border-brand-950/5 bg-brand-50/60 px-3 py-2 transition focus-within:border-brand-300 focus-within:bg-white">
+      {Icon && <Icon size={15} className="shrink-0 text-brand-400" />}
+      <div>
+        <p className="text-[10px] font-medium text-brand-400">{label}</p>
+        {children}
+      </div>
+    </div>
   );
 }

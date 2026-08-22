@@ -27,7 +27,7 @@ export default async function BookListingPage({
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
-      <h1 className="text-2xl font-semibold text-brand-900">{listing.title}</h1>
+      <h1 className="text-2xl font-bold text-brand-950">{listing.title}</h1>
       <p className="mt-1 text-sm text-brand-500">{listing.location}</p>
 
       <div className="mt-6">

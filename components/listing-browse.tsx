@@ -33,7 +33,14 @@ export async function ListingBrowsePage({
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-10">
-      <h1 className="mb-6 text-2xl font-semibold text-brand-900">{TITLES[type]} in GMC</h1>
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-brand-950">{TITLES[type]} in GMC</h1>
+        <p className="mt-1 text-sm text-brand-500">
+          {listings.length > 0
+            ? `${listings.length} curated ${listings.length === 1 ? 'listing' : 'listings'}`
+            : 'Browse what’s open in Gelephu Mindfulness City'}
+        </p>
+      </div>
 
       <div className="mb-8">
         <ListingFilters />
@@ -46,8 +53,8 @@ export async function ListingBrowsePage({
           ))}
         </div>
       ) : (
-        <div className="rounded-2xl border border-dashed border-brand-200 bg-brand-50/50 px-6 py-16 text-center">
-          <p className="font-medium text-brand-700">No {TITLES[type].toLowerCase()} match your search yet.</p>
+        <div className="rounded-3xl border border-dashed border-brand-200 bg-brand-50/50 px-6 py-16 text-center">
+          <p className="font-semibold text-brand-800">No {TITLES[type].toLowerCase()} match your search yet.</p>
           <p className="mt-1 text-sm text-brand-500">Try clearing a filter or checking different dates.</p>
         </div>
       )}

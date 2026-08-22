@@ -28,7 +28,7 @@ export default async function LeaveReviewPage({ params }: { params: { id: string
 
   return (
     <main className="mx-auto max-w-lg px-6 py-10">
-      <h1 className="text-2xl font-semibold text-brand-900">Review your stay</h1>
+      <h1 className="text-2xl font-bold text-brand-950">Review your stay</h1>
       <p className="mt-1 text-sm text-brand-500">{booking.listings?.title}</p>
       <div className="mt-6">
         <ReviewForm bookingId={booking.id} />

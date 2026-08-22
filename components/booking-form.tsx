@@ -53,7 +53,7 @@ export function BookingForm({
   }, [checkIn, checkOut, byDate, priceBase]);
 
   return (
-    <form action={formAction} className="space-y-4 rounded-2xl border border-brand-100 p-6">
+    <form action={formAction} className="space-y-4 rounded-3xl border border-brand-950/5 p-6 shadow-soft">
       <input type="hidden" name="listingId" value={listingId} />
       <input type="hidden" name="listingSlug" value={listingSlug} />
 
@@ -67,7 +67,7 @@ export function BookingForm({
             value={checkIn}
             onChange={(e) => setCheckIn(e.target.value)}
             required
-            className="rounded-lg border border-brand-200 px-3 py-2 text-sm text-brand-800"
+            className="rounded-xl border border-brand-950/10 px-3 py-2.5 text-sm text-brand-900 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
           />
         </label>
         <label className="flex flex-col gap-1 text-xs font-medium text-brand-500">
@@ -79,7 +79,7 @@ export function BookingForm({
             value={checkOut}
             onChange={(e) => setCheckOut(e.target.value)}
             required
-            className="rounded-lg border border-brand-200 px-3 py-2 text-sm text-brand-800"
+            className="rounded-xl border border-brand-950/10 px-3 py-2.5 text-sm text-brand-900 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
           />
         </label>
       </div>
@@ -94,12 +94,12 @@ export function BookingForm({
           value={guests}
           onChange={(e) => setGuests(Number(e.target.value))}
           required
-          className="rounded-lg border border-brand-200 px-3 py-2 text-sm text-brand-800"
+          className="rounded-xl border border-brand-950/10 px-3 py-2.5 text-sm text-brand-900 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
         />
       </label>
       {maxGuests && <p className="text-xs text-brand-400">Sleeps up to {maxGuests} guests.</p>}
 
-      <div className="rounded-lg bg-brand-50 p-4 text-sm">
+      <div className="rounded-2xl bg-brand-50 p-4 text-sm">
         {priceInfo && 'unavailable' in priceInfo ? (
           <p className="text-red-600">Not available on {priceInfo.unavailable}. Pick different dates.</p>
         ) : priceInfo ? (
@@ -108,7 +108,7 @@ export function BookingForm({
               {formatCurrency(priceInfo.total / priceInfo.nights, currency)} × {priceInfo.nights} night
               {priceInfo.nights === 1 ? '' : 's'}
             </span>
-            <span className="font-semibold text-brand-800">{formatCurrency(priceInfo.total, currency)}</span>
+            <span className="font-bold text-brand-900">{formatCurrency(priceInfo.total, currency)}</span>
           </div>
         ) : (
           <p className="text-brand-500">Choose your dates to see the total price.</p>
@@ -133,7 +133,7 @@ function SubmitButton({ disabled }: { disabled: boolean }) {
     <button
       type="submit"
       disabled={disabled || pending}
-      className="w-full rounded-lg bg-brand-600 px-4 py-3 font-semibold text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:bg-brand-200"
+      className="w-full rounded-2xl bg-accent-500 px-4 py-3.5 font-bold text-brand-950 shadow-soft transition hover:bg-accent-400 disabled:cursor-not-allowed disabled:bg-brand-100 disabled:text-brand-400 disabled:shadow-none"
     >
       {pending ? 'Booking…' : 'Confirm booking'}
     </button>
