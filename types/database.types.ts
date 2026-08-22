@@ -2,6 +2,10 @@
 // Once the project is linked to a real Supabase instance, regenerate with:
 //   npm run supabase:types
 // (requires the Supabase CLI: `supabase link` first).
+//
+// Shape follows what `supabase gen types typescript` emits (Row/Insert/
+// Update/Relationships per table) so @supabase/supabase-js's generics
+// resolve correctly instead of collapsing to `never`.
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
@@ -11,6 +15,14 @@ export type ListingType = 'hotel' | 'homestay' | 'tour' | 'transport';
 export type ListingStatus = 'draft' | 'pending_review' | 'published' | 'archived';
 export type BookingStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed';
 export type PaymentStatus = 'pending' | 'paid' | 'refunded';
+
+type Relationship = {
+  foreignKeyName: string;
+  columns: string[];
+  isOneToOne?: boolean;
+  referencedRelation: string;
+  referencedColumns: string[];
+};
 
 export interface Database {
   public: {
@@ -33,6 +45,7 @@ export interface Database {
           role?: UserRole;
         };
         Update: Partial<Database['public']['Tables']['profiles']['Insert']>;
+        Relationships: Relationship[];
       };
       hosts: {
         Row: {
@@ -54,6 +67,7 @@ export interface Database {
           payout_details?: Json;
         };
         Update: Partial<Database['public']['Tables']['hosts']['Insert']>;
+        Relationships: Relationship[];
       };
       categories: {
         Row: {
@@ -72,6 +86,7 @@ export interface Database {
           description?: string | null;
         };
         Update: Partial<Database['public']['Tables']['categories']['Insert']>;
+        Relationships: Relationship[];
       };
       listings: {
         Row: {
@@ -111,6 +126,7 @@ export interface Database {
           featured?: boolean;
         };
         Update: Partial<Database['public']['Tables']['listings']['Insert']>;
+        Relationships: Relationship[];
       };
       listing_details: {
         Row: {
@@ -123,6 +139,7 @@ export interface Database {
           details?: Json;
         };
         Update: Partial<Database['public']['Tables']['listing_details']['Insert']>;
+        Relationships: Relationship[];
       };
       availability: {
         Row: {
@@ -141,6 +158,7 @@ export interface Database {
           price_override?: number | null;
         };
         Update: Partial<Database['public']['Tables']['availability']['Insert']>;
+        Relationships: Relationship[];
       };
       bookings: {
         Row: {
@@ -178,6 +196,7 @@ export interface Database {
           hold_expires_at?: string | null;
         };
         Update: Partial<Database['public']['Tables']['bookings']['Insert']>;
+        Relationships: Relationship[];
       };
       reviews: {
         Row: {
@@ -196,6 +215,7 @@ export interface Database {
           host_response?: string | null;
         };
         Update: Partial<Database['public']['Tables']['reviews']['Insert']>;
+        Relationships: Relationship[];
       };
       listing_categories: {
         Row: {
@@ -207,7 +227,19 @@ export interface Database {
           category_id: string;
         };
         Update: Partial<Database['public']['Tables']['listing_categories']['Insert']>;
+        Relationships: Relationship[];
       };
     };
+    Views: Record<string, never>;
+    Functions: Record<string, never>;
+    Enums: {
+      user_role: UserRole;
+      host_verification_status: HostVerificationStatus;
+      listing_type: ListingType;
+      listing_status: ListingStatus;
+      booking_status: BookingStatus;
+      payment_status: PaymentStatus;
+    };
+    CompositeTypes: Record<string, never>;
   };
 }
