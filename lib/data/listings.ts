@@ -241,16 +241,14 @@ export async function getRatingsForListings(
     const supabase = createClient();
     const { data, error } = await supabase
       .from('reviews')
-      .select('rating, bookings!inner(listing_id)')
-      .in('bookings.listing_id', listingIds);
+      .select('rating, listing_id')
+      .in('listing_id', listingIds);
     if (error) throw error;
 
     const byListing = new Map<string, number[]>();
-    for (const row of (data ?? []) as any[]) {
-      const listingId = row.bookings?.listing_id as string | undefined;
-      if (!listingId) continue;
-      if (!byListing.has(listingId)) byListing.set(listingId, []);
-      byListing.get(listingId)!.push(row.rating as number);
+    for (const row of data ?? []) {
+      if (!byListing.has(row.listing_id)) byListing.set(row.listing_id, []);
+      byListing.get(row.listing_id)!.push(row.rating);
     }
 
     const result = new Map<string, ListingRating>();
@@ -269,8 +267,8 @@ export async function getReviewsForListing(listingId: string): Promise<ListingRe
     const supabase = createClient();
     const { data, error } = await supabase
       .from('reviews')
-      .select('id, rating, comment, host_response, created_at, bookings!inner(listing_id)')
-      .eq('bookings.listing_id', listingId)
+      .select('id, rating, comment, host_response, created_at')
+      .eq('listing_id', listingId)
       .order('created_at', { ascending: false });
     if (error) throw error;
     return (data ?? []).map(({ id, rating, comment, host_response, created_at }) => ({

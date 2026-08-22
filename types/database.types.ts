@@ -202,6 +202,7 @@ export interface Database {
         Row: {
           id: string;
           booking_id: string;
+          listing_id: string;
           rating: number;
           comment: string | null;
           host_response: string | null;
@@ -210,6 +211,7 @@ export interface Database {
         Insert: {
           id?: string;
           booking_id: string;
+          // listing_id is populated automatically by set_review_listing_id()
           rating: number;
           comment?: string | null;
           host_response?: string | null;
