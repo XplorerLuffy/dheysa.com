@@ -131,7 +131,7 @@ export default function ListYourPropertyPage() {
                 ))}
               </ul>
               <Link
-                href="/signup"
+                href="/host-signup"
                 className="mt-6 flex items-center justify-center gap-1.5 rounded-full bg-accent-500 px-5 py-3 text-sm font-bold text-brand-950 transition hover:bg-accent-400"
               >
                 Create a host account
@@ -167,7 +167,7 @@ export default function ListYourPropertyPage() {
         </StaggerGroup>
         <Reveal className="mt-8">
           <Link
-            href="/signup"
+            href="/host-signup"
             className="inline-flex items-center gap-1.5 rounded-full bg-brand-800 px-5 py-2.5 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-900"
           >
             Get started today
@@ -197,7 +197,7 @@ export default function ListYourPropertyPage() {
           </StaggerGroup>
           <Reveal className="mt-8">
             <Link
-              href="/signup"
+              href="/host-signup"
               className="inline-flex items-center gap-1.5 rounded-full bg-brand-800 px-5 py-2.5 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-900"
             >
               Start hosting today
@@ -229,7 +229,7 @@ export default function ListYourPropertyPage() {
         </StaggerGroup>
         <Reveal className="mt-8">
           <Link
-            href="/signup"
+            href="/host-signup"
             className="inline-flex items-center gap-1.5 rounded-full bg-brand-800 px-5 py-2.5 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-900"
           >
             Host with us today
@@ -264,7 +264,7 @@ export default function ListYourPropertyPage() {
               </p>
             </div>
             <Link
-              href="/signup"
+              href="/host-signup"
               className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-accent-500 px-5 py-3 text-sm font-bold text-brand-950 transition hover:bg-accent-400"
             >
               Join hosts like you
