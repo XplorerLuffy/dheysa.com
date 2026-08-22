@@ -48,6 +48,12 @@ export function SiteHeader({ user }: { user: CurrentUser | null }) {
         </nav>
 
         <div className="flex items-center gap-2 text-sm">
+          <Link
+            href="/list-your-property"
+            className="hidden rounded-full px-3.5 py-2 font-semibold text-brand-700 transition hover:bg-brand-50 hover:text-brand-900 sm:inline-flex"
+          >
+            List your property
+          </Link>
           {user ? (
             <>
               <span className="hidden text-brand-500 sm:inline">

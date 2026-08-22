@@ -29,8 +29,27 @@ export default async function HomePage() {
 
   return (
     <main>
-      <section className="bg-brand-900 pb-10 pt-8 sm:pb-14 sm:pt-10">
-        <HeroIntro className="mx-auto flex max-w-6xl flex-col items-start gap-6 px-6">
+      <section className="relative overflow-hidden bg-gradient-to-br from-brand-950 via-brand-900 to-brand-800 pb-10 pt-8 sm:pb-14 sm:pt-10">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.07]"
+          style={{
+            backgroundImage:
+              "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cpath d='M0 90 L30 40 L50 65 L75 25 L120 90' fill='none' stroke='white' stroke-width='1.5'/%3E%3C/svg%3E\")",
+            backgroundSize: '240px 240px',
+          }}
+        />
+        <div
+          data-hero-glow
+          className="pointer-events-none absolute -top-24 right-0 h-96 w-96 rounded-full bg-accent-500/20 blur-3xl"
+          aria-hidden="true"
+        />
+        <div
+          data-hero-glow
+          className="pointer-events-none absolute -left-24 top-1/3 h-72 w-72 rounded-full bg-brand-500/20 blur-3xl"
+          aria-hidden="true"
+        />
+
+        <HeroIntro className="relative mx-auto flex max-w-6xl flex-col items-start gap-6 px-6">
           <div data-hero-item>
             <h1 className="text-3xl font-bold tracking-tight text-white sm:text-[2.75rem]">
               Find your next stay in GMC
