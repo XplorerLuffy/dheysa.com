@@ -29,52 +29,25 @@ export default async function HomePage() {
 
   return (
     <main>
-      <section className="relative overflow-hidden bg-brand-950 pb-28 pt-16 sm:pb-32 sm:pt-20">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.07]"
-          style={{
-            backgroundImage:
-              "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cpath d='M0 90 L30 40 L50 65 L75 25 L120 90' fill='none' stroke='white' stroke-width='1.5'/%3E%3C/svg%3E\")",
-            backgroundSize: '240px 240px',
-          }}
-        />
-        <div
-          data-hero-glow
-          className="pointer-events-none absolute -top-24 right-0 h-96 w-96 rounded-full bg-accent-500/20 blur-3xl"
-          aria-hidden="true"
-        />
-        <div
-          data-hero-glow
-          className="pointer-events-none absolute -left-24 top-1/3 h-72 w-72 rounded-full bg-brand-500/20 blur-3xl"
-          aria-hidden="true"
-        />
+      <section className="bg-brand-900 pb-10 pt-8 sm:pb-14 sm:pt-10">
+        <HeroIntro className="mx-auto flex max-w-6xl flex-col items-start gap-6 px-6">
+          <div data-hero-item>
+            <h1 className="text-3xl font-bold tracking-tight text-white sm:text-[2.75rem]">
+              Find your next stay in GMC
+            </h1>
+            <p className="mt-2 max-w-xl text-brand-200">
+              Search curated hotels, homestays, and experiences across Gelephu Mindfulness City —
+              every listing personally vetted, not self-serve.
+            </p>
+          </div>
 
-        <HeroIntro className="relative mx-auto flex max-w-6xl flex-col items-center gap-8 px-6 text-center">
-          <span
-            data-hero-item
-            className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-medium text-brand-100"
-          >
-            <Sparkles size={13} className="text-accent-400" />
-            Gelephu Mindfulness City, Bhutan
-          </span>
-          <h1
-            data-hero-item
-            className="max-w-2xl text-4xl font-bold tracking-tight text-white sm:text-5xl"
-          >
-            Curated stays &amp; experiences, hand-picked for GMC
-          </h1>
-          <p data-hero-item className="max-w-xl text-brand-200">
-            Every hotel, homestay, tour, and ride on DheySa is personally vetted — not a
-            self-serve listing. Book with confidence.
-          </p>
-
-          <div data-hero-item className="flex w-full justify-center">
+          <div data-hero-item className="w-full">
             <SearchBar />
           </div>
         </HeroIntro>
       </section>
 
-      <section className="mx-auto -mt-2 max-w-6xl px-6 py-14">
+      <section className="mx-auto max-w-6xl px-6 py-14">
         <StaggerGroup className="grid grid-cols-1 gap-6 sm:grid-cols-3">
           {TRUST_POINTS.map((point) => (
             <div key={point.title} className="flex items-start gap-3 rounded-2xl p-2">

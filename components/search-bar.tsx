@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Building2, Home, Compass, Car, MapPin, CalendarDays, Users, Search } from 'lucide-react';
 import { todayISO, addDays } from '@/lib/format';
-import { FormField } from '@/components/form-field';
 import { TypeTabRow, type TypeTabItem } from '@/components/type-tab-row';
 
 export function SearchBar() {
@@ -33,61 +32,75 @@ export function SearchBar() {
   ];
 
   return (
-    <div className="flex w-full max-w-4xl flex-col items-center gap-3">
-      <TypeTabRow items={tabs} tone="dark" />
+    <div className="flex w-full flex-col items-start gap-4">
+      <TypeTabRow items={tabs} tone="dark" bare />
 
       <form
         onSubmit={handleSubmit}
-        className="w-full rounded-3xl border border-brand-950/5 bg-white p-3 shadow-lift"
+        className="flex w-full flex-col overflow-hidden rounded-2xl bg-white shadow-lift ring-4 ring-accent-400/40 sm:flex-row sm:rounded-full"
       >
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-[1.3fr_1fr_1fr_0.8fr_auto]">
-          <FormField icon={MapPin} label="Where in GMC">
+        <label className="flex flex-1 items-center gap-3 border-b border-brand-100 px-5 py-3.5 sm:border-b-0 sm:border-r">
+          <MapPin size={18} className="shrink-0 text-brand-400" />
+          <span className="flex-1 text-left">
+            <span className="block text-[11px] font-semibold text-brand-900">Where in GMC</span>
             <input
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              placeholder="e.g. Riverside, Town Centre"
-              className="w-full border-0 bg-transparent p-0 text-sm text-brand-900 placeholder:text-brand-300 focus:outline-none focus:ring-0"
+              placeholder="Search destinations"
+              className="w-full border-0 bg-transparent p-0 text-sm text-brand-700 placeholder:text-brand-300 focus:outline-none focus:ring-0"
             />
-          </FormField>
+          </span>
+        </label>
 
-          <FormField icon={CalendarDays} label="Check-in">
+        <label className="flex flex-1 items-center gap-3 border-b border-brand-100 px-5 py-3.5 sm:border-b-0 sm:border-r">
+          <CalendarDays size={18} className="shrink-0 text-brand-400" />
+          <span className="flex-1 text-left">
+            <span className="block text-[11px] font-semibold text-brand-900">Check-in</span>
             <input
               type="date"
               min={todayISO()}
               value={checkIn}
               onChange={(e) => setCheckIn(e.target.value)}
-              className="w-full border-0 bg-transparent p-0 text-sm text-brand-900 focus:outline-none focus:ring-0"
+              className="w-full border-0 bg-transparent p-0 text-sm text-brand-700 focus:outline-none focus:ring-0"
             />
-          </FormField>
+          </span>
+        </label>
 
-          <FormField icon={CalendarDays} label="Check-out">
+        <label className="flex flex-1 items-center gap-3 border-b border-brand-100 px-5 py-3.5 sm:border-b-0 sm:border-r">
+          <CalendarDays size={18} className="shrink-0 text-brand-400" />
+          <span className="flex-1 text-left">
+            <span className="block text-[11px] font-semibold text-brand-900">Check-out</span>
             <input
               type="date"
               min={checkIn ? addDays(checkIn, 1) : todayISO()}
               value={checkOut}
               onChange={(e) => setCheckOut(e.target.value)}
-              className="w-full border-0 bg-transparent p-0 text-sm text-brand-900 focus:outline-none focus:ring-0"
+              className="w-full border-0 bg-transparent p-0 text-sm text-brand-700 focus:outline-none focus:ring-0"
             />
-          </FormField>
+          </span>
+        </label>
 
-          <FormField icon={Users} label="Guests">
+        <label className="flex items-center gap-3 px-5 py-3.5 sm:w-40">
+          <Users size={18} className="shrink-0 text-brand-400" />
+          <span className="flex-1 text-left">
+            <span className="block text-[11px] font-semibold text-brand-900">Guests</span>
             <input
               type="number"
               min={1}
               value={guests}
               onChange={(e) => setGuests(Number(e.target.value))}
-              className="w-full border-0 bg-transparent p-0 text-sm text-brand-900 focus:outline-none focus:ring-0"
+              className="w-full border-0 bg-transparent p-0 text-sm text-brand-700 focus:outline-none focus:ring-0"
             />
-          </FormField>
+          </span>
+        </label>
 
-          <button
-            type="submit"
-            className="flex items-center justify-center gap-2 rounded-2xl bg-accent-500 px-6 py-3 text-sm font-bold text-brand-950 shadow-soft transition hover:bg-accent-400 sm:px-5"
-          >
-            <Search size={16} strokeWidth={2.5} />
-            <span className="sm:hidden">Search</span>
-          </button>
-        </div>
+        <button
+          type="submit"
+          className="flex items-center justify-center gap-2 bg-accent-500 px-8 py-4 text-sm font-bold text-brand-950 transition hover:bg-accent-400 sm:rounded-r-full"
+        >
+          <Search size={16} strokeWidth={2.5} />
+          Search
+        </button>
       </form>
     </div>
   );
