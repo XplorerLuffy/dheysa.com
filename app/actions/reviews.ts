@@ -20,15 +20,22 @@ export async function submitReview(
     return { error: 'Choose a rating between 1 and 5.' };
   }
 
-  const supabase = createClient();
-  const { error } = await supabase.from('reviews').insert({
-    booking_id: bookingId,
-    rating,
-    comment: comment || null,
-  });
+  let submitError: string | null = null;
+  try {
+    const supabase = createClient();
+    const { error } = await supabase.from('reviews').insert({
+      booking_id: bookingId,
+      rating,
+      comment: comment || null,
+    });
+    submitError = error?.message ?? null;
+  } catch (error) {
+    console.error('submitReview failed:', error);
+    return { error: 'Could not submit your review. Please try again shortly.' };
+  }
 
-  if (error) {
-    return { error: error.message };
+  if (submitError) {
+    return { error: submitError };
   }
 
   redirect(`/trips/${bookingId}`);

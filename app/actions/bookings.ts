@@ -26,7 +26,13 @@ export async function createBooking(
     return { error: 'Enter a valid number of guests.' };
   }
 
-  const supabase = createClient();
+  let supabase: ReturnType<typeof createClient>;
+  try {
+    supabase = createClient();
+  } catch (error) {
+    console.error('createBooking: failed to init Supabase client:', error);
+    return { error: 'Booking is temporarily unavailable. Please try again shortly.' };
+  }
 
   const {
     data: { user },
@@ -107,7 +113,14 @@ export async function createBooking(
 }
 
 export async function cancelBooking(bookingId: string): Promise<void> {
-  const supabase = createClient();
-  const { error } = await supabase.from('bookings').update({ status: 'cancelled' }).eq('id', bookingId);
-  redirect(error ? `/trips/${bookingId}?error=cancel_failed` : `/trips/${bookingId}`);
+  let failed = false;
+  try {
+    const supabase = createClient();
+    const { error } = await supabase.from('bookings').update({ status: 'cancelled' }).eq('id', bookingId);
+    failed = Boolean(error);
+  } catch (error) {
+    console.error('cancelBooking failed:', error);
+    failed = true;
+  }
+  redirect(failed ? `/trips/${bookingId}?error=cancel_failed` : `/trips/${bookingId}`);
 }

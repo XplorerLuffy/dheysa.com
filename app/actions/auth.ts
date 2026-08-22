@@ -5,6 +5,8 @@ import { createClient } from '@/lib/supabase/server';
 
 export type AuthFormState = { error: string | null };
 
+const CONFIG_ERROR = 'Sign-in is temporarily unavailable. Please try again shortly.';
+
 export async function signIn(_prevState: AuthFormState, formData: FormData): Promise<AuthFormState> {
   const email = String(formData.get('email') ?? '');
   const password = String(formData.get('password') ?? '');
@@ -14,10 +16,18 @@ export async function signIn(_prevState: AuthFormState, formData: FormData): Pro
     return { error: 'Enter your email and password.' };
   }
 
-  const supabase = createClient();
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) {
-    return { error: error.message };
+  let signInError: string | null = null;
+  try {
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    signInError = error?.message ?? null;
+  } catch (error) {
+    console.error('signIn failed:', error);
+    return { error: CONFIG_ERROR };
+  }
+
+  if (signInError) {
+    return { error: signInError };
   }
 
   redirect(redirectTo || '/');
@@ -36,21 +46,33 @@ export async function signUp(_prevState: AuthFormState, formData: FormData): Pro
     return { error: 'Password must be at least 8 characters.' };
   }
 
-  const supabase = createClient();
-  const { error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: { data: { full_name: fullName } },
-  });
-  if (error) {
-    return { error: error.message };
+  let signUpError: string | null = null;
+  try {
+    const supabase = createClient();
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { full_name: fullName } },
+    });
+    signUpError = error?.message ?? null;
+  } catch (error) {
+    console.error('signUp failed:', error);
+    return { error: CONFIG_ERROR };
+  }
+
+  if (signUpError) {
+    return { error: signUpError };
   }
 
   redirect(redirectTo || '/');
 }
 
 export async function signOut() {
-  const supabase = createClient();
-  await supabase.auth.signOut();
+  try {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+  } catch (error) {
+    console.error('signOut failed:', error);
+  }
   redirect('/');
 }
