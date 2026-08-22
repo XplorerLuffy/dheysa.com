@@ -88,7 +88,19 @@ npm run dev
 
 ### Seeing it with real content
 
-The site renders correct empty states with zero data, but to see it populated:
+Two ways to see the site populated instead of its (correct) empty states:
+
+**Demo mode — no Supabase project needed at all.** Set `NEXT_PUBLIC_DEMO_MODE=true` in
+`.env.local` (see `.env.local.example`) and rebuild. The homepage, browse pages, and listing
+detail pages show sample hotel/homestay listings — including reviews and score badges — entirely
+in-memory (`lib/data/demo-data.ts`), no database involved. Note it's a `NEXT_PUBLIC_` var, so it
+must be set *before* `next build`, not just before `next start` — Next.js inlines these at build
+time, so setting it only at runtime (e.g. after deploying) won't do anything. Scope: read-only
+listing display only — auth, booking, and My Trips still need a real Supabase project, so "Book
+now" on a demo listing won't complete (there's no real row behind it). Turn it off once your own
+listings are live.
+
+**Seed data — for testing against your real Supabase project.**
 
 1. Sign up one account through the running app at `/signup` using the email
    `demo-host@dheysa.com` (any password).
@@ -100,6 +112,15 @@ The site renders correct empty states with zero data, but to see it populated:
 It deliberately doesn't seed bookings or reviews — those go through the real booking flow (RLS
 and the booking triggers own that logic) — so sign up a second guest account and book something
 to see a review's score badge show up.
+
+If you added listings some other way (e.g. directly in the Supabase Table Editor) and they're not
+showing up: check `select title, status, featured from public.listings;` — a trigger
+(`enforce_listing_publish_rules`) silently reverts `status` to `pending_review` for anything not
+inserted/updated by an authenticated admin session, which the Table Editor doesn't provide. The
+seed script works around this by disabling that trigger for its own duration; a manual dashboard
+edit doesn't. Also note the homepage's "Featured stays" section only shows listings with
+`featured = true` — everything else (published but not featured) shows up on `/hotels` and
+`/homestays` instead.
 
 ## Project layout
 

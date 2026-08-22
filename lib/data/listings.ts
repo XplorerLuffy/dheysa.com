@@ -1,29 +1,46 @@
 import { createClient } from '@/lib/supabase/server';
-import type { Database, ListingType } from '@/types/database.types';
+import type { ListingType } from '@/types/database.types';
+import { isDemoMode } from '@/lib/demo';
+import {
+  getDemoFeaturedListings,
+  getDemoCuratedCollections,
+  getDemoListingsByType,
+  getDemoListingBySlug,
+  getDemoAvailability,
+  getDemoRatingsForListings,
+  getDemoReviewsForListing,
+} from './demo-data';
 
-export type Listing = Database['public']['Tables']['listings']['Row'];
-export type ListingWithHost = Listing & {
-  hosts: { business_name: string; bio: string | null } | null;
-};
-
-export type SortOption = 'curated' | 'price_asc' | 'price_desc';
-
-export type BrowseFilters = {
-  location?: string;
-  minPrice?: number;
-  maxPrice?: number;
-  checkIn?: string;
-  checkOut?: string;
-  guests?: number;
-  sort?: SortOption;
-};
+export type {
+  Listing,
+  ListingWithHost,
+  SortOption,
+  BrowseFilters,
+  CuratedCollection,
+  ListingDetail,
+  AvailabilityDay,
+  ListingReview,
+  ListingRating,
+} from './types';
+import type {
+  Listing,
+  ListingWithHost,
+  BrowseFilters,
+  CuratedCollection,
+  ListingDetail,
+  AvailabilityDay,
+  ListingReview,
+  ListingRating,
+} from './types';
 
 // Every public list/detail query below swallows errors and returns an
 // empty result rather than throwing — a fresh/unconfigured Supabase
 // project (no data yet, or no env vars during local scaffolding) should
-// render an empty state, not a 500 page.
+// render an empty state, not a 500 page. See lib/demo.ts for the
+// NEXT_PUBLIC_DEMO_MODE escape hatch that bypasses Supabase entirely.
 
 export async function getFeaturedListings(limit = 6): Promise<ListingWithHost[]> {
+  if (isDemoMode()) return getDemoFeaturedListings(limit);
   try {
     const supabase = createClient();
     const { data, error } = await supabase
@@ -40,15 +57,8 @@ export async function getFeaturedListings(limit = 6): Promise<ListingWithHost[]>
   }
 }
 
-export type CuratedCollection = {
-  id: string;
-  name: string;
-  slug: string;
-  description: string | null;
-  listings: ListingWithHost[];
-};
-
 export async function getCuratedCollections(perCollection = 4): Promise<CuratedCollection[]> {
+  if (isDemoMode()) return getDemoCuratedCollections(perCollection);
   try {
     const supabase = createClient();
     const { data: categories, error } = await supabase
@@ -84,6 +94,7 @@ export async function getListingsByType(
   type: ListingType,
   filters: BrowseFilters = {}
 ): Promise<ListingWithHost[]> {
+  if (isDemoMode()) return getDemoListingsByType(type, filters.sort);
   try {
     const supabase = createClient();
     let query = supabase
@@ -174,12 +185,8 @@ async function filterListingIdsByAvailability(
   }
 }
 
-export type ListingDetail = ListingWithHost & {
-  listing_details: { details: Record<string, unknown> } | null;
-  categories: { id: string; name: string; slug: string }[];
-};
-
 export async function getListingBySlug(slug: string): Promise<ListingDetail | null> {
+  if (isDemoMode()) return getDemoListingBySlug(slug);
   try {
     const supabase = createClient();
     const { data, error } = await supabase
@@ -203,17 +210,12 @@ export async function getListingBySlug(slug: string): Promise<ListingDetail | nu
   }
 }
 
-export type AvailabilityDay = {
-  date: string;
-  slots_available: number;
-  price_override: number | null;
-};
-
 export async function getAvailability(
   listingId: string,
   from: string,
   to: string
 ): Promise<AvailabilityDay[]> {
+  if (isDemoMode()) return getDemoAvailability(from, to);
   try {
     const supabase = createClient();
     const { data, error } = await supabase
@@ -230,19 +232,10 @@ export async function getAvailability(
   }
 }
 
-export type ListingReview = {
-  id: string;
-  rating: number;
-  comment: string | null;
-  host_response: string | null;
-  created_at: string;
-};
-
-export type ListingRating = { avg: number; count: number };
-
 export async function getRatingsForListings(
   listingIds: string[]
 ): Promise<Map<string, ListingRating>> {
+  if (isDemoMode()) return getDemoRatingsForListings(listingIds);
   if (!listingIds.length) return new Map();
   try {
     const supabase = createClient();
@@ -271,6 +264,7 @@ export async function getRatingsForListings(
 }
 
 export async function getReviewsForListing(listingId: string): Promise<ListingReview[]> {
+  if (isDemoMode()) return getDemoReviewsForListing(listingId);
   try {
     const supabase = createClient();
     const { data, error } = await supabase
