@@ -1,6 +1,7 @@
 'use server';
 
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
 
 export type HostSignupState = { error: string | null };
@@ -48,6 +49,14 @@ export async function signUpHost(_prevState: HostSignupState, formData: FormData
 
   try {
     const supabase = createClient();
+
+    // Once they confirm their email, /auth/callback should drop them
+    // straight into creating their first listing rather than the homepage.
+    const headersList = headers();
+    const host = headersList.get('host');
+    const protocol = headersList.get('x-forwarded-proto') ?? 'https';
+    const emailRedirectTo = host ? `${protocol}://${host}/auth/callback?next=/host/listings/new` : undefined;
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -58,6 +67,7 @@ export async function signUpHost(_prevState: HostSignupState, formData: FormData
           business_name: businessName,
           host_application: true,
         },
+        emailRedirectTo,
       },
     });
 

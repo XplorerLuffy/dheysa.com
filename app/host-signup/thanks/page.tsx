@@ -23,6 +23,7 @@ export default async function HostSignupThanksPage({
             <h1 className="mt-4 text-2xl font-bold text-brand-950">You’re all set</h1>
             <div className="mt-4 rounded-2xl border border-brand-950/10 bg-brand-50 p-5 text-sm text-brand-700">
               Your host application for <span className="font-semibold text-brand-950">DheySa</span> is in.
+              Add your first listing whenever you’re ready.
             </div>
           </>
         ) : (
@@ -49,13 +50,28 @@ export default async function HostSignupThanksPage({
           days.
         </p>
 
-        <Link
-          href="/"
-          className="mt-6 inline-flex items-center gap-1.5 rounded-full bg-brand-800 px-5 py-2.5 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-900"
-        >
-          Back to DheySa
-          <ArrowRight size={14} />
-        </Link>
+        <div className="mt-6 flex flex-wrap gap-3">
+          {user && (
+            <Link
+              href="/host/listings/new"
+              className="inline-flex items-center gap-1.5 rounded-full bg-accent-500 px-5 py-2.5 text-sm font-bold text-brand-950 transition hover:bg-accent-400"
+            >
+              Add your first listing
+              <ArrowRight size={14} strokeWidth={2.5} />
+            </Link>
+          )}
+          <Link
+            href="/"
+            className={
+              user
+                ? 'inline-flex items-center gap-1.5 rounded-full border border-brand-950/10 px-5 py-2.5 text-sm font-semibold text-brand-800 transition hover:bg-brand-50'
+                : 'inline-flex items-center gap-1.5 rounded-full bg-brand-800 px-5 py-2.5 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-900'
+            }
+          >
+            Back to DheySa
+            <ArrowRight size={14} />
+          </Link>
+        </div>
       </Reveal>
     </main>
   );
