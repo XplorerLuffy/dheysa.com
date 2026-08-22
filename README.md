@@ -10,9 +10,16 @@ tours/experiences, and transport, all vetted by an admin rather than self-serve.
 
 ## Status
 
-**Phase 0 — schema + scaffold.** No UI beyond a placeholder homepage yet; see
+**Phase 1 guest-facing site is built**: homepage, hotel/homestay browse pages (booking.com-style —
+property-type tabs, sticky search bar, sidebar filters, list-style results with a review score
+badge), listing detail pages, the booking flow (date/guest picker → live price breakdown → 15-minute
+hold → manual bank-transfer instructions), My Trips, and post-stay reviews. Email/password auth via
+Supabase Auth. See
 [`supabase/migrations/20260822000000_init_schema.sql`](supabase/migrations/20260822000000_init_schema.sql)
-for the full data model, which is intended to be reviewed before Phase 1 UI work starts.
+for the full data model.
+
+Not yet built: the admin curation dashboard and the host dashboard (both call for a signed-in
+admin/host area, which hasn't been scoped yet) — see the build order below.
 
 Build order (from the project brief):
 
@@ -79,11 +86,29 @@ Run the dev server:
 npm run dev
 ```
 
+### Seeing it with real content
+
+The site renders correct empty states with zero data, but to see it populated:
+
+1. Sign up one account through the running app at `/signup` using the email
+   `demo-host@dheysa.com` (any password).
+2. Run [`supabase/seed.sql`](supabase/seed.sql) against your project (SQL Editor, or
+   `supabase db execute -f supabase/seed.sql`). It promotes that account to a verified host and
+   adds a handful of hotel/homestay listings with availability, using picsum.photos placeholder
+   images.
+
+It deliberately doesn't seed bookings or reviews — those go through the real booking flow (RLS
+and the booking triggers own that logic) — so sign up a second guest account and book something
+to see a review's score badge show up.
+
 ## Project layout
 
 ```
 app/                     Next.js App Router pages
+components/              Shared UI (search bar, listing cards/list rows, forms, etc.)
+lib/data/                Server-side data-fetching (listings, bookings)
 lib/supabase/            Supabase client factories (browser, server, middleware)
 types/database.types.ts  Generated (or hand-authored, matching) Postgres types
 supabase/migrations/     SQL migrations
+supabase/seed.sql        Optional demo data for local/staging preview
 ```

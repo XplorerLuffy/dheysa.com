@@ -3,8 +3,13 @@ export function formatCurrency(amount: number, currency: string = 'BTN'): string
   return `${symbol} ${amount.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
 }
 
+// Accepts either a plain "YYYY-MM-DD" date (Postgres `date` columns, e.g.
+// availability.date, bookings.check_in) or a full ISO timestamp (Postgres
+// `timestamptz` columns, e.g. reviews.created_at) — only the former needs
+// a time appended before parsing.
 export function formatDate(date: string | Date): string {
-  const d = typeof date === 'string' ? new Date(`${date}T00:00:00`) : date;
+  const d =
+    typeof date === 'string' ? new Date(date.length <= 10 ? `${date}T00:00:00` : date) : date;
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
