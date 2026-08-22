@@ -6,6 +6,8 @@ export type ListingWithHost = Listing & {
   hosts: { business_name: string; bio: string | null } | null;
 };
 
+export type SortOption = 'curated' | 'price_asc' | 'price_desc';
+
 export type BrowseFilters = {
   location?: string;
   minPrice?: number;
@@ -13,6 +15,7 @@ export type BrowseFilters = {
   checkIn?: string;
   checkOut?: string;
   guests?: number;
+  sort?: SortOption;
 };
 
 // Every public list/detail query below swallows errors and returns an
@@ -99,9 +102,17 @@ export async function getListingsByType(
       query = query.lte('price_base', filters.maxPrice);
     }
 
-    const { data, error } = await query.order('curated_by_admin', { ascending: false }).order('created_at', {
-      ascending: false,
-    });
+    if (filters.sort === 'price_asc') {
+      query = query.order('price_base', { ascending: true });
+    } else if (filters.sort === 'price_desc') {
+      query = query.order('price_base', { ascending: false });
+    } else {
+      query = query
+        .order('curated_by_admin', { ascending: false })
+        .order('created_at', { ascending: false });
+    }
+
+    const { data, error } = await query;
     if (error) throw error;
     let listings = (data ?? []) as ListingWithHost[];
 
@@ -226,6 +237,38 @@ export type ListingReview = {
   host_response: string | null;
   created_at: string;
 };
+
+export type ListingRating = { avg: number; count: number };
+
+export async function getRatingsForListings(
+  listingIds: string[]
+): Promise<Map<string, ListingRating>> {
+  if (!listingIds.length) return new Map();
+  try {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from('reviews')
+      .select('rating, bookings!inner(listing_id)')
+      .in('bookings.listing_id', listingIds);
+    if (error) throw error;
+
+    const byListing = new Map<string, number[]>();
+    for (const row of (data ?? []) as any[]) {
+      const listingId = row.bookings?.listing_id as string | undefined;
+      if (!listingId) continue;
+      if (!byListing.has(listingId)) byListing.set(listingId, []);
+      byListing.get(listingId)!.push(row.rating as number);
+    }
+
+    const result = new Map<string, ListingRating>();
+    for (const [id, ratings] of byListing) {
+      result.set(id, { avg: ratings.reduce((a, b) => a + b, 0) / ratings.length, count: ratings.length });
+    }
+    return result;
+  } catch {
+    return new Map();
+  }
+}
 
 export async function getReviewsForListing(listingId: string): Promise<ListingReview[]> {
   try {

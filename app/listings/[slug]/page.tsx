@@ -4,6 +4,7 @@ import { MapPin, Check, ShieldCheck } from 'lucide-react';
 import { Gallery } from '@/components/gallery';
 import { AvailabilityPreview } from '@/components/availability-preview';
 import { StarRating } from '@/components/star-rating';
+import { ScoreBadge } from '@/components/score-badge';
 import { formatCurrency, formatDate, titleCase, todayISO, addDays } from '@/lib/format';
 import { getAvailability, getListingBySlug, getReviewsForListing } from '@/lib/data/listings';
 
@@ -38,12 +39,7 @@ export default async function ListingDetailPage({ params }: { params: { slug: st
             <MapPin size={14} />
             {listing.location}
           </span>
-          {avgRating && (
-            <span className="flex items-center gap-2">
-              <StarRating rating={Math.round(avgRating)} />
-              {avgRating} ({reviews.length} review{reviews.length === 1 ? '' : 's'})
-            </span>
-          )}
+          {avgRating && <ScoreBadge avgRating={avgRating} reviewCount={reviews.length} />}
           {listing.curated_by_admin && (
             <span className="flex items-center gap-1 font-medium text-brand-700">
               <ShieldCheck size={14} className="text-accent-500" />
@@ -137,10 +133,13 @@ export default async function ListingDetailPage({ params }: { params: { slug: st
         </div>
 
         <aside className="h-fit rounded-3xl border border-brand-950/5 p-6 shadow-soft lg:sticky lg:top-24">
-          <p className="text-2xl font-bold text-brand-950">
-            {formatCurrency(listing.price_base, listing.currency)}
-            <span className="text-sm font-normal text-brand-400"> / night</span>
-          </p>
+          <div className="flex items-start justify-between gap-3">
+            <p className="text-2xl font-bold text-brand-950">
+              {formatCurrency(listing.price_base, listing.currency)}
+              <span className="text-sm font-normal text-brand-400"> / night</span>
+            </p>
+            {avgRating && <ScoreBadge avgRating={avgRating} reviewCount={reviews.length} />}
+          </div>
           {maxGuests && <p className="mt-1 text-sm text-brand-500">Sleeps up to {maxGuests} guests</p>}
           <Link
             href={`/listings/${listing.slug}/book`}
