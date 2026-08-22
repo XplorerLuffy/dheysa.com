@@ -3,6 +3,7 @@ import { ListingListItem } from '@/components/listing-list-item';
 import { SearchFieldsBar } from '@/components/search-fields-bar';
 import { ResultsSidebar } from '@/components/results-sidebar';
 import { TypeTabRow, type TypeTabItem } from '@/components/type-tab-row';
+import { StaggerGroup } from '@/components/motion/stagger-group';
 import { getListingsByType, getRatingsForListings, type SortOption } from '@/lib/data/listings';
 import type { ListingType } from '@/types/database.types';
 
@@ -80,11 +81,11 @@ export async function ListingBrowsePage({
           </div>
 
           {listings.length > 0 ? (
-            <div className="space-y-4">
+            <StaggerGroup className="space-y-4" watch={listings.map((l) => l.id).join(',')}>
               {listings.map((listing) => (
                 <ListingListItem key={listing.id} listing={listing} rating={ratings.get(listing.id)} />
               ))}
-            </div>
+            </StaggerGroup>
           ) : (
             <div className="rounded-3xl border border-dashed border-brand-200 bg-brand-50/50 px-6 py-16 text-center">
               <p className="font-semibold text-brand-800">

@@ -11,8 +11,10 @@
     "supabase:types": "supabase gen types typescript --linked > types/database.types.ts"
   },
   "dependencies": {
+    "@gsap/react": "^2.1.2",
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.45.4",
+    "gsap": "^3.15.0",
     "lucide-react": "^1.33.0",
     "next": "14.2.35",
     "react": "^18.3.1",

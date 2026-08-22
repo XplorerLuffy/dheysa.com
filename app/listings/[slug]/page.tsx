@@ -5,6 +5,8 @@ import { Gallery } from '@/components/gallery';
 import { AvailabilityPreview } from '@/components/availability-preview';
 import { StarRating } from '@/components/star-rating';
 import { ScoreBadge } from '@/components/score-badge';
+import { Reveal } from '@/components/motion/reveal';
+import { StaggerGroup } from '@/components/motion/stagger-group';
 import { formatCurrency, formatDate, titleCase, todayISO, addDays } from '@/lib/format';
 import { getAvailability, getListingBySlug, getReviewsForListing } from '@/lib/data/listings';
 
@@ -29,7 +31,7 @@ export default async function ListingDetailPage({ params }: { params: { slug: st
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-10">
-      <div className="mb-4">
+      <Reveal className="mb-4" y={12}>
         <p className="text-xs font-semibold uppercase tracking-wide text-brand-400">
           {titleCase(listing.type)}
         </p>
@@ -47,12 +49,14 @@ export default async function ListingDetailPage({ params }: { params: { slug: st
             </span>
           )}
         </div>
-      </div>
+      </Reveal>
 
-      <Gallery images={listing.images} title={listing.title} />
+      <Reveal delay={0.1}>
+        <Gallery images={listing.images} title={listing.title} />
+      </Reveal>
 
       <div className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-3">
-        <div className="space-y-9 lg:col-span-2">
+        <StaggerGroup className="space-y-9 lg:col-span-2">
           {listing.hosts?.business_name && (
             <div>
               <h2 className="text-lg font-bold text-brand-950">
@@ -130,28 +134,30 @@ export default async function ListingDetailPage({ params }: { params: { slug: st
               </ul>
             )}
           </div>
-        </div>
+        </StaggerGroup>
 
-        <aside className="h-fit rounded-3xl border border-brand-950/5 p-6 shadow-soft lg:sticky lg:top-24">
-          <div className="flex items-start justify-between gap-3">
-            <p className="text-2xl font-bold text-brand-950">
-              {formatCurrency(listing.price_base, listing.currency)}
-              <span className="text-sm font-normal text-brand-400"> / night</span>
+        <Reveal delay={0.15}>
+          <aside className="h-fit rounded-3xl border border-brand-950/5 p-6 shadow-soft lg:sticky lg:top-24">
+            <div className="flex items-start justify-between gap-3">
+              <p className="text-2xl font-bold text-brand-950">
+                {formatCurrency(listing.price_base, listing.currency)}
+                <span className="text-sm font-normal text-brand-400"> / night</span>
+              </p>
+              {avgRating && <ScoreBadge avgRating={avgRating} reviewCount={reviews.length} />}
+            </div>
+            {maxGuests && <p className="mt-1 text-sm text-brand-500">Sleeps up to {maxGuests} guests</p>}
+            <Link
+              href={`/listings/${listing.slug}/book`}
+              className="mt-5 block w-full rounded-2xl bg-accent-500 px-4 py-3.5 text-center font-bold text-brand-950 shadow-soft transition hover:bg-accent-400"
+            >
+              Book now
+            </Link>
+            <p className="mt-3 text-center text-xs text-brand-400">
+              You won&apos;t be charged yet. We hold your dates for 15 minutes while you complete
+              payment.
             </p>
-            {avgRating && <ScoreBadge avgRating={avgRating} reviewCount={reviews.length} />}
-          </div>
-          {maxGuests && <p className="mt-1 text-sm text-brand-500">Sleeps up to {maxGuests} guests</p>}
-          <Link
-            href={`/listings/${listing.slug}/book`}
-            className="mt-5 block w-full rounded-2xl bg-accent-500 px-4 py-3.5 text-center font-bold text-brand-950 shadow-soft transition hover:bg-accent-400"
-          >
-            Book now
-          </Link>
-          <p className="mt-3 text-center text-xs text-brand-400">
-            You won&apos;t be charged yet. We hold your dates for 15 minutes while you complete
-            payment.
-          </p>
-        </aside>
+          </aside>
+        </Reveal>
       </div>
     </main>
   );

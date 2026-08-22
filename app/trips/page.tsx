@@ -5,6 +5,7 @@ import { ArrowRight } from 'lucide-react';
 import { getCurrentUser } from '@/lib/auth';
 import { getMyBookings } from '@/lib/data/bookings';
 import { StatusBadge } from '@/components/status-badge';
+import { StaggerGroup } from '@/components/motion/stagger-group';
 import { formatCurrency, formatDateRange, titleCase } from '@/lib/format';
 
 export default async function TripsPage() {
@@ -37,7 +38,11 @@ export default async function TripsPage() {
           </div>
         </div>
       ) : (
-        <ul className="mt-8 space-y-4">
+        <StaggerGroup
+          as="ul"
+          className="mt-8 space-y-4"
+          watch={bookings.map((b) => b.id).join(',')}
+        >
           {bookings.map((booking) => {
             const hasReview = (booking.reviews?.length ?? 0) > 0;
             return (
@@ -91,7 +96,7 @@ export default async function TripsPage() {
               </li>
             );
           })}
-        </ul>
+        </StaggerGroup>
       )}
     </main>
   );

@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { ShieldCheck, Sparkles, Users2, ArrowRight } from 'lucide-react';
 import { SearchBar } from '@/components/search-bar';
 import { ListingCard } from '@/components/listing-card';
+import { HeroIntro } from '@/components/motion/hero-intro';
+import { StaggerGroup } from '@/components/motion/stagger-group';
 import { getCuratedCollections, getFeaturedListings } from '@/lib/data/listings';
 
 const TRUST_POINTS = [
@@ -37,35 +39,43 @@ export default async function HomePage() {
           }}
         />
         <div
+          data-hero-glow
           className="pointer-events-none absolute -top-24 right-0 h-96 w-96 rounded-full bg-accent-500/20 blur-3xl"
           aria-hidden="true"
         />
         <div
+          data-hero-glow
           className="pointer-events-none absolute -left-24 top-1/3 h-72 w-72 rounded-full bg-brand-500/20 blur-3xl"
           aria-hidden="true"
         />
 
-        <div className="relative mx-auto flex max-w-6xl flex-col items-center gap-8 px-6 text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-medium text-brand-100">
+        <HeroIntro className="relative mx-auto flex max-w-6xl flex-col items-center gap-8 px-6 text-center">
+          <span
+            data-hero-item
+            className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-medium text-brand-100"
+          >
             <Sparkles size={13} className="text-accent-400" />
             Gelephu Mindfulness City, Bhutan
           </span>
-          <h1 className="max-w-2xl text-4xl font-bold tracking-tight text-white sm:text-5xl">
+          <h1
+            data-hero-item
+            className="max-w-2xl text-4xl font-bold tracking-tight text-white sm:text-5xl"
+          >
             Curated stays &amp; experiences, hand-picked for GMC
           </h1>
-          <p className="max-w-xl text-brand-200">
+          <p data-hero-item className="max-w-xl text-brand-200">
             Every hotel, homestay, tour, and ride on DheySa is personally vetted — not a
             self-serve listing. Book with confidence.
           </p>
-        </div>
 
-        <div className="relative mx-auto mt-10 flex max-w-6xl justify-center px-6">
-          <SearchBar />
-        </div>
+          <div data-hero-item className="flex w-full justify-center">
+            <SearchBar />
+          </div>
+        </HeroIntro>
       </section>
 
       <section className="mx-auto -mt-2 max-w-6xl px-6 py-14">
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+        <StaggerGroup className="grid grid-cols-1 gap-6 sm:grid-cols-3">
           {TRUST_POINTS.map((point) => (
             <div key={point.title} className="flex items-start gap-3 rounded-2xl p-2">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-700">
@@ -77,17 +87,20 @@ export default async function HomePage() {
               </div>
             </div>
           ))}
-        </div>
+        </StaggerGroup>
       </section>
 
       <section className="mx-auto max-w-6xl px-6 py-10">
         <SectionHeader title="Featured stays" />
         {featured.length > 0 ? (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <StaggerGroup
+            className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
+            watch={featured.map((l) => l.id).join(',')}
+          >
             {featured.map((listing) => (
               <ListingCard key={listing.id} listing={listing} />
             ))}
-          </div>
+          </StaggerGroup>
         ) : (
           <EmptyState />
         )}
@@ -96,11 +109,14 @@ export default async function HomePage() {
       {collections.map((collection) => (
         <section key={collection.id} className="mx-auto max-w-6xl px-6 py-10">
           <SectionHeader title={collection.name} subtitle={collection.description} />
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <StaggerGroup
+            className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
+            watch={collection.listings.map((l) => l.id).join(',')}
+          >
             {collection.listings.map((listing) => (
               <ListingCard key={listing.id} listing={listing} />
             ))}
-          </div>
+          </StaggerGroup>
         </section>
       ))}
     </main>
