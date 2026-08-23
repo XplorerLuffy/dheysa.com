@@ -1,6 +1,7 @@
 'use server';
 
 import { redirect } from 'next/navigation';
+import { randomUUID } from 'crypto';
 import { createClient } from '@/lib/supabase/server';
 
 export type ListingFormState = { error: string | null };
@@ -75,28 +76,34 @@ export async function submitListing(_prevState: ListingFormState, formData: Form
 
     const slug = `${slugify(title)}-${Math.random().toString(36).slice(2, 7)}`;
 
-    const { data: listing, error: listingError } = await supabase
-      .from('listings')
-      .insert({
-        host_id: host.id,
-        type: type as 'hotel' | 'homestay',
-        title,
-        slug,
-        description: description || null,
-        location,
-        price_base: priceBase,
-        images,
-        status: 'pending_review',
-      })
-      .select('id')
-      .single();
+    // Generate the id ourselves instead of reading it back via
+    // .select().single() after insert. Confirmed directly against
+    // Postgres: the exact same INSERT succeeds under this RLS policy
+    // without RETURNING, but fails with "new row violates row-level
+    // security policy" when RETURNING is added — even though the row is
+    // fully visible to a normal SELECT run immediately afterward. Rather
+    // than depend on that RETURNING-specific behavior, skip it.
+    const listingId = randomUUID();
 
-    if (listingError || !listing) {
-      return { error: listingError?.message ?? 'Could not submit your listing. Try again.' };
+    const { error: listingError } = await supabase.from('listings').insert({
+      id: listingId,
+      host_id: host.id,
+      type: type as 'hotel' | 'homestay',
+      title,
+      slug,
+      description: description || null,
+      location,
+      price_base: priceBase,
+      images,
+      status: 'pending_review',
+    });
+
+    if (listingError) {
+      return { error: listingError.message };
     }
 
     const { error: detailsError } = await supabase.from('listing_details').insert({
-      listing_id: listing.id,
+      listing_id: listingId,
       details: {
         amenities,
         max_guests: maxGuests,
