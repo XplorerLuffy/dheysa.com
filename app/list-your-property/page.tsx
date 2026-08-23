@@ -35,8 +35,8 @@ const START_STEPS = [
 const PAYMENT_POINTS = [
   {
     icon: ReceiptText,
-    title: 'Clear terms upfront',
-    body: 'You always know what a guest is paying and what you’re owed before a booking is confirmed.',
+    title: 'A simple 5% commission',
+    body: 'DheySa takes 5% per booking — you keep 95% of every night you host. No tiers, no surprise add-ons.',
   },
   {
     icon: Wallet,
@@ -51,7 +51,7 @@ const PAYMENT_POINTS = [
   {
     icon: Lock,
     title: 'No hidden platform games',
-    body: 'Straightforward terms — no surprise fees buried in fine print.',
+    body: 'One flat rate, agreed upfront — no surprise fees buried in fine print.',
   },
 ];
 

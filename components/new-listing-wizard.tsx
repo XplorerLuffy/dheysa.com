@@ -5,13 +5,23 @@ import { useFormState, useFormStatus } from 'react-dom';
 import { Building2, Home, Compass, Car } from 'lucide-react';
 import { submitListing, type ListingFormState } from '@/app/actions/listings';
 import { formatCurrency } from '@/lib/format';
+import { PhotoUpload } from '@/components/photo-upload';
 
 const initialState: ListingFormState = { error: null };
 
-const AMENITIES = ['WiFi', 'Breakfast included', 'Free parking', 'Air conditioning', 'Hot water', 'Mountain view'];
+const AMENITY_GROUPS: { label: string; items: string[] }[] = [
+  { label: 'General', items: ['Free WiFi', 'Air conditioning', 'Heating', 'Hot water', 'Free parking'] },
+  { label: 'Cooking & cleaning', items: ['Kitchen', 'Kitchenette', 'Breakfast included', 'Daily housekeeping'] },
+  { label: 'Outside & extras', items: ['Mountain view', 'Garden view', 'Balcony', 'Flat-screen TV'] },
+];
+
+const LANGUAGES = ['English', 'Dzongkha', 'Hindi', 'Nepali', 'Mandarin'];
+
+const COMMISSION_RATE = 0.05;
 
 type Step = 1 | 2 | 3 | 4;
 type PropertyType = 'hotel' | 'homestay' | '';
+type PetsAllowed = 'yes' | 'upon_request' | 'no';
 
 export function NewListingWizard() {
   const [state, formAction] = useFormState(submitListing, initialState);
@@ -22,15 +32,28 @@ export function NewListingWizard() {
   const [title, setTitle] = useState('');
   const [location, setLocation] = useState('');
   const [description, setDescription] = useState('');
+  const [images, setImages] = useState<string[]>([]);
+
   const [priceBase, setPriceBase] = useState('');
   const [maxGuests, setMaxGuests] = useState('2');
   const [bedrooms, setBedrooms] = useState('1');
   const [bathrooms, setBathrooms] = useState('1');
   const [roomCount, setRoomCount] = useState('1');
+  const [sizeSqm, setSizeSqm] = useState('');
   const [amenities, setAmenities] = useState<string[]>([]);
+  const [languages, setLanguages] = useState<string[]>(['English']);
 
-  function toggleAmenity(name: string) {
-    setAmenities((prev) => (prev.includes(name) ? prev.filter((a) => a !== name) : [...prev, name]));
+  const [smokingAllowed, setSmokingAllowed] = useState(false);
+  const [partiesAllowed, setPartiesAllowed] = useState(false);
+  const [childrenAllowed, setChildrenAllowed] = useState(true);
+  const [petsAllowed, setPetsAllowed] = useState<PetsAllowed>('no');
+  const [checkInFrom, setCheckInFrom] = useState('14:00');
+  const [checkInUntil, setCheckInUntil] = useState('20:00');
+  const [checkOutFrom, setCheckOutFrom] = useState('06:00');
+  const [checkOutUntil, setCheckOutUntil] = useState('11:00');
+
+  function toggleFrom(list: string[], setList: (v: string[]) => void, name: string) {
+    setList(list.includes(name) ? list.filter((a) => a !== name) : [...list, name]);
   }
 
   function goToStep2() {
@@ -60,6 +83,8 @@ export function NewListingWizard() {
     setStepError(null);
     setStep(4);
   }
+
+  const payout = priceBase ? Number(priceBase) * (1 - COMMISSION_RATE) : 0;
 
   return (
     <form action={formAction} className="space-y-5">
@@ -127,6 +152,13 @@ export function NewListingWizard() {
           />
         </label>
 
+        <div className="mt-4">
+          <p className="text-xs font-medium text-brand-500">Photos</p>
+          <div className="mt-1.5">
+            <PhotoUpload images={images} onChange={setImages} />
+          </div>
+        </div>
+
         {step === 2 && stepError && <p className="mt-3 text-sm text-red-600">{stepError}</p>}
 
         <StepNav onBack={() => setStep(1)} onNext={goToStep3} nextLabel="Next" />
@@ -146,6 +178,12 @@ export function NewListingWizard() {
             className="rounded-xl border border-brand-950/10 px-3.5 py-2.5 text-sm text-brand-900 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
           />
         </label>
+        {priceBase && Number(priceBase) > 0 && (
+          <p className="mt-1.5 text-xs text-brand-500">
+            DheySa takes a {COMMISSION_RATE * 100}% commission per booking — you'd receive{' '}
+            <span className="font-semibold text-brand-800">{formatCurrency(payout)}</span> per night.
+          </p>
+        )}
 
         <div className="mt-3 grid grid-cols-3 gap-3">
           <label className="flex flex-col gap-1 text-xs font-medium text-brand-500">
@@ -180,33 +218,157 @@ export function NewListingWizard() {
           </label>
         </div>
 
-        {type === 'hotel' && (
-          <label className="mt-3 flex flex-col gap-1 text-xs font-medium text-brand-500">
-            Number of rooms available
+        <div className="mt-3 grid grid-cols-2 gap-3">
+          {type === 'hotel' && (
+            <label className="flex flex-col gap-1 text-xs font-medium text-brand-500">
+              Number of rooms available
+              <input
+                type="number"
+                min={1}
+                value={roomCount}
+                onChange={(e) => setRoomCount(e.target.value)}
+                className="rounded-xl border border-brand-950/10 px-3.5 py-2.5 text-sm text-brand-900 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
+              />
+            </label>
+          )}
+          <label className="flex flex-col gap-1 text-xs font-medium text-brand-500">
+            Size in sqm (optional)
             <input
               type="number"
-              min={1}
-              value={roomCount}
-              onChange={(e) => setRoomCount(e.target.value)}
+              min={0}
+              value={sizeSqm}
+              onChange={(e) => setSizeSqm(e.target.value)}
               className="rounded-xl border border-brand-950/10 px-3.5 py-2.5 text-sm text-brand-900 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
             />
           </label>
-        )}
+        </div>
 
-        <div className="mt-4">
+        <div className="mt-5">
           <p className="text-xs font-medium text-brand-500">Amenities</p>
-          <div className="mt-2 grid grid-cols-2 gap-2">
-            {AMENITIES.map((amenity) => (
-              <label key={amenity} className="flex items-center gap-2 text-sm text-brand-700">
+          <div className="mt-2 space-y-3">
+            {AMENITY_GROUPS.map((group) => (
+              <div key={group.label}>
+                <p className="text-xs font-semibold text-brand-800">{group.label}</p>
+                <div className="mt-1.5 grid grid-cols-2 gap-1.5">
+                  {group.items.map((amenity) => (
+                    <label key={amenity} className="flex items-center gap-2 text-sm text-brand-700">
+                      <input
+                        type="checkbox"
+                        checked={amenities.includes(amenity)}
+                        onChange={() => toggleFrom(amenities, setAmenities, amenity)}
+                        className="h-4 w-4 rounded border-brand-950/20 text-brand-700 focus:ring-brand-300"
+                      />
+                      {amenity}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-5">
+          <p className="text-xs font-medium text-brand-500">Languages spoken</p>
+          <div className="mt-1.5 grid grid-cols-2 gap-1.5">
+            {LANGUAGES.map((language) => (
+              <label key={language} className="flex items-center gap-2 text-sm text-brand-700">
                 <input
                   type="checkbox"
-                  checked={amenities.includes(amenity)}
-                  onChange={() => toggleAmenity(amenity)}
+                  checked={languages.includes(language)}
+                  onChange={() => toggleFrom(languages, setLanguages, language)}
                   className="h-4 w-4 rounded border-brand-950/20 text-brand-700 focus:ring-brand-300"
                 />
-                {amenity}
+                {language}
               </label>
             ))}
+          </div>
+        </div>
+
+        <div className="mt-5">
+          <p className="text-xs font-medium text-brand-500">House rules</p>
+          <div className="mt-1.5 space-y-1.5">
+            <label className="flex items-center gap-2 text-sm text-brand-700">
+              <input
+                type="checkbox"
+                checked={smokingAllowed}
+                onChange={(e) => setSmokingAllowed(e.target.checked)}
+                className="h-4 w-4 rounded border-brand-950/20 text-brand-700 focus:ring-brand-300"
+              />
+              Smoking allowed
+            </label>
+            <label className="flex items-center gap-2 text-sm text-brand-700">
+              <input
+                type="checkbox"
+                checked={partiesAllowed}
+                onChange={(e) => setPartiesAllowed(e.target.checked)}
+                className="h-4 w-4 rounded border-brand-950/20 text-brand-700 focus:ring-brand-300"
+              />
+              Parties/events allowed
+            </label>
+            <label className="flex items-center gap-2 text-sm text-brand-700">
+              <input
+                type="checkbox"
+                checked={childrenAllowed}
+                onChange={(e) => setChildrenAllowed(e.target.checked)}
+                className="h-4 w-4 rounded border-brand-950/20 text-brand-700 focus:ring-brand-300"
+              />
+              Children allowed
+            </label>
+          </div>
+
+          <p className="mt-3 text-xs text-brand-500">Do you allow pets?</p>
+          <div className="mt-1 flex gap-4">
+            {(['yes', 'upon_request', 'no'] as PetsAllowed[]).map((option) => (
+              <label key={option} className="flex items-center gap-1.5 text-sm text-brand-700">
+                <input
+                  type="radio"
+                  name="petsAllowedRadio"
+                  checked={petsAllowed === option}
+                  onChange={() => setPetsAllowed(option)}
+                  className="h-4 w-4 border-brand-950/20 text-brand-700 focus:ring-brand-300"
+                />
+                {option === 'yes' ? 'Yes' : option === 'upon_request' ? 'Upon request' : 'No'}
+              </label>
+            ))}
+          </div>
+
+          <div className="mt-3 grid grid-cols-2 gap-3">
+            <div>
+              <p className="text-xs text-brand-500">Check-in window</p>
+              <div className="mt-1 flex items-center gap-1.5">
+                <input
+                  type="time"
+                  value={checkInFrom}
+                  onChange={(e) => setCheckInFrom(e.target.value)}
+                  className="w-full rounded-xl border border-brand-950/10 px-2.5 py-2 text-sm text-brand-900 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
+                />
+                <span className="text-xs text-brand-400">to</span>
+                <input
+                  type="time"
+                  value={checkInUntil}
+                  onChange={(e) => setCheckInUntil(e.target.value)}
+                  className="w-full rounded-xl border border-brand-950/10 px-2.5 py-2 text-sm text-brand-900 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
+                />
+              </div>
+            </div>
+            <div>
+              <p className="text-xs text-brand-500">Check-out window</p>
+              <div className="mt-1 flex items-center gap-1.5">
+                <input
+                  type="time"
+                  value={checkOutFrom}
+                  onChange={(e) => setCheckOutFrom(e.target.value)}
+                  className="w-full rounded-xl border border-brand-950/10 px-2.5 py-2 text-sm text-brand-900 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
+                />
+                <span className="text-xs text-brand-400">to</span>
+                <input
+                  type="time"
+                  value={checkOutUntil}
+                  onChange={(e) => setCheckOutUntil(e.target.value)}
+                  className="w-full rounded-xl border border-brand-950/10 px-2.5 py-2 text-sm text-brand-900 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
+                />
+              </div>
+            </div>
           </div>
         </div>
 
@@ -225,9 +387,15 @@ export function NewListingWizard() {
           <SummaryRow label="Location" value={location || '—'} />
           <SummaryRow
             label="Price"
-            value={priceBase ? `${formatCurrency(Number(priceBase))} / night` : '—'}
+            value={
+              priceBase
+                ? `${formatCurrency(Number(priceBase))} / night (you keep ${formatCurrency(payout)})`
+                : '—'
+            }
           />
           <SummaryRow label="Guests" value={maxGuests || '—'} />
+          <SummaryRow label="Photos" value={images.length ? `${images.length} added` : 'None added'} />
+          <SummaryRow label="Languages" value={languages.length ? languages.join(', ') : '—'} />
           <SummaryRow label="Amenities" value={amenities.length ? amenities.join(', ') : 'None selected'} />
         </dl>
 
@@ -258,8 +426,23 @@ export function NewListingWizard() {
       <input type="hidden" name="bedrooms" value={bedrooms} />
       <input type="hidden" name="bathrooms" value={bathrooms} />
       <input type="hidden" name="roomCount" value={roomCount} />
+      <input type="hidden" name="sizeSqm" value={sizeSqm} />
+      <input type="hidden" name="smokingAllowed" value={String(smokingAllowed)} />
+      <input type="hidden" name="partiesAllowed" value={String(partiesAllowed)} />
+      <input type="hidden" name="childrenAllowed" value={String(childrenAllowed)} />
+      <input type="hidden" name="petsAllowed" value={petsAllowed} />
+      <input type="hidden" name="checkInFrom" value={checkInFrom} />
+      <input type="hidden" name="checkInUntil" value={checkInUntil} />
+      <input type="hidden" name="checkOutFrom" value={checkOutFrom} />
+      <input type="hidden" name="checkOutUntil" value={checkOutUntil} />
       {amenities.map((amenity) => (
         <input key={amenity} type="hidden" name="amenities" value={amenity} />
+      ))}
+      {languages.map((language) => (
+        <input key={language} type="hidden" name="languages" value={language} />
+      ))}
+      {images.map((url) => (
+        <input key={url} type="hidden" name="images" value={url} />
       ))}
     </form>
   );

@@ -29,7 +29,22 @@ export async function submitListing(_prevState: ListingFormState, formData: Form
   const bedrooms = Number(formData.get('bedrooms') ?? 0) || null;
   const bathrooms = Number(formData.get('bathrooms') ?? 0) || null;
   const roomCount = Number(formData.get('roomCount') ?? 0) || null;
+  const sizeSqm = Number(formData.get('sizeSqm') ?? 0) || null;
   const amenities = formData.getAll('amenities').map(String);
+  const languages = formData.getAll('languages').map(String);
+  const images = formData.getAll('images').map(String);
+
+  const houseRules = {
+    smoking_allowed: formData.get('smokingAllowed') === 'true',
+    parties_allowed: formData.get('partiesAllowed') === 'true',
+    children_allowed: formData.get('childrenAllowed') === 'true',
+    pets_allowed: String(formData.get('petsAllowed') ?? 'no'),
+    check_in: { from: String(formData.get('checkInFrom') ?? ''), until: String(formData.get('checkInUntil') ?? '') },
+    check_out: {
+      from: String(formData.get('checkOutFrom') ?? ''),
+      until: String(formData.get('checkOutUntil') ?? ''),
+    },
+  };
 
   if (type !== 'hotel' && type !== 'homestay') {
     return { error: 'Choose a property type.' };
@@ -70,6 +85,7 @@ export async function submitListing(_prevState: ListingFormState, formData: Form
         description: description || null,
         location,
         price_base: priceBase,
+        images,
         status: 'pending_review',
       })
       .select('id')
@@ -86,6 +102,9 @@ export async function submitListing(_prevState: ListingFormState, formData: Form
         max_guests: maxGuests,
         bedrooms,
         bathrooms,
+        size_sqm: sizeSqm,
+        languages_spoken: languages,
+        house_rules: houseRules,
         ...(type === 'hotel' ? { room_count: roomCount } : {}),
       },
     });
