@@ -5,6 +5,7 @@ export type CurrentUser = {
   id: string;
   email: string | null;
   profile: Database['public']['Tables']['profiles']['Row'] | null;
+  host: Database['public']['Tables']['hosts']['Row'] | null;
 };
 
 // Resilient to a Supabase project not being configured yet (dev/preview
@@ -18,9 +19,12 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     } = await supabase.auth.getUser();
     if (!user) return null;
 
-    const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+    const [{ data: profile }, { data: host }] = await Promise.all([
+      supabase.from('profiles').select('*').eq('id', user.id).single(),
+      supabase.from('hosts').select('*').eq('user_id', user.id).maybeSingle(),
+    ]);
 
-    return { id: user.id, email: user.email ?? null, profile: profile ?? null };
+    return { id: user.id, email: user.email ?? null, profile: profile ?? null, host: host ?? null };
   } catch {
     return null;
   }

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { signOut } from '@/app/actions/auth';
 import type { CurrentUser } from '@/lib/auth';
+import type { HostVerificationStatus } from '@/types/database.types';
 
 const NAV_LINKS = [
   { href: '/hotels', label: 'Hotels' },
@@ -45,19 +46,30 @@ export function SiteHeader({ user }: { user: CurrentUser | null }) {
               My Trips
             </Link>
           )}
+          {user?.host && (
+            <Link
+              href="/host/listings/new"
+              className="rounded-full px-3.5 py-2 transition hover:bg-brand-50 hover:text-brand-900"
+            >
+              My listings
+            </Link>
+          )}
         </nav>
 
         <div className="flex items-center gap-2 text-sm">
-          <Link
-            href="/list-your-property"
-            className="hidden rounded-full px-3.5 py-2 font-semibold text-brand-700 transition hover:bg-brand-50 hover:text-brand-900 sm:inline-flex"
-          >
-            List your property
-          </Link>
+          {!user?.host && (
+            <Link
+              href="/list-your-property"
+              className="hidden rounded-full px-3.5 py-2 font-semibold text-brand-700 transition hover:bg-brand-50 hover:text-brand-900 sm:inline-flex"
+            >
+              List your property
+            </Link>
+          )}
           {user ? (
             <>
-              <span className="hidden text-brand-500 sm:inline">
+              <span className="hidden items-center gap-1.5 text-brand-500 sm:flex">
                 {user.profile?.full_name ?? user.email}
+                {user.host && <HostBadge status={user.host.verification_status} />}
               </span>
               <form action={signOut}>
                 <button
@@ -88,4 +100,22 @@ export function SiteHeader({ user }: { user: CurrentUser | null }) {
       </div>
     </header>
   );
+}
+
+function HostBadge({ status }: { status: HostVerificationStatus }) {
+  if (status === 'verified') {
+    return (
+      <span className="rounded-full bg-brand-50 px-2 py-0.5 text-xs font-semibold text-brand-700">
+        Verified host
+      </span>
+    );
+  }
+  if (status === 'pending') {
+    return (
+      <span className="rounded-full bg-accent-50 px-2 py-0.5 text-xs font-semibold text-accent-700">
+        Host — pending review
+      </span>
+    );
+  }
+  return null;
 }
