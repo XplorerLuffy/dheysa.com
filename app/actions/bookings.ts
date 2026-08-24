@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { nightsBetween } from '@/lib/format';
+import { sendBookingConfirmationEmail } from '@/lib/email';
 
 export type BookingFormState = { error: string | null };
 
@@ -43,7 +44,7 @@ export async function createBooking(
 
   const { data: listing, error: listingError } = await supabase
     .from('listings')
-    .select('id, host_id, price_base, currency, status, type')
+    .select('id, host_id, title, location, price_base, currency, status, type')
     .eq('id', listingId)
     .eq('status', 'published')
     .single();
@@ -107,6 +108,33 @@ export async function createBooking(
 
   if (bookingError || !booking) {
     return { error: bookingError?.message ?? 'Could not create the booking. Please try again.' };
+  }
+
+  try {
+    const { data: host } = await supabase
+      .from('hosts')
+      .select('business_name, contact_phone')
+      .eq('id', listing.host_id)
+      .maybeSingle();
+
+    if (user!.email) {
+      await sendBookingConfirmationEmail({
+        to: user!.email,
+        listingTitle: listing.title,
+        listingLocation: listing.location,
+        checkIn,
+        checkOut,
+        bookingDate: null,
+        guests,
+        totalPrice: total,
+        currency: listing.currency,
+        bookingId: booking.id,
+        hostBusinessName: host?.business_name ?? null,
+        hostContactPhone: host?.contact_phone ?? null,
+      });
+    }
+  } catch (error) {
+    console.error('sendBookingConfirmationEmail failed:', error);
   }
 
   redirect(`/trips/${booking.id}`);
