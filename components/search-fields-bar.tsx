@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { MapPin, CalendarDays, Users, Search } from 'lucide-react';
 import { todayISO, addDays } from '@/lib/format';
 import { FormField } from '@/components/form-field';
+import { DestinationAutocomplete } from '@/components/destination-autocomplete';
 
 export function SearchFieldsBar() {
   const router = useRouter();
@@ -32,12 +33,12 @@ export function SearchFieldsBar() {
       className="rounded-2xl border border-brand-950/5 bg-white p-2.5 shadow-soft"
     >
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-[1.3fr_1fr_1fr_0.8fr_auto]">
-        <FormField icon={MapPin} label="Where in GMC">
-          <input
+        <FormField icon={MapPin} label="Where in GMC" overflowVisible>
+          <DestinationAutocomplete
             value={location}
-            onChange={(e) => setLocation(e.target.value)}
+            onChange={setLocation}
             placeholder="Any"
-            className="w-full border-0 bg-transparent p-0 text-sm text-brand-900 placeholder:text-brand-300 focus:outline-none focus:ring-0"
+            inputClassName="w-full border-0 bg-transparent p-0 text-sm text-brand-900 placeholder:text-brand-300 focus:outline-none focus:ring-0"
           />
         </FormField>
         <FormField icon={CalendarDays} label="Check-in">

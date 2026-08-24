@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Building2, Home, Compass, Car, MapPin, CalendarDays, Users, Search } from 'lucide-react';
 import { todayISO, addDays } from '@/lib/format';
 import { TypeTabRow, type TypeTabItem } from '@/components/type-tab-row';
+import { DestinationAutocomplete } from '@/components/destination-autocomplete';
 
 export function SearchBar() {
   const router = useRouter();
@@ -43,11 +44,11 @@ export function SearchBar() {
           <MapPin size={18} className="shrink-0 text-brand-400" />
           <span className="flex-1 text-left">
             <span className="block text-[11px] font-semibold text-brand-900">Where in GMC</span>
-            <input
+            <DestinationAutocomplete
               value={location}
-              onChange={(e) => setLocation(e.target.value)}
+              onChange={setLocation}
               placeholder="Search destinations"
-              className="w-full border-0 bg-transparent p-0 text-sm text-brand-700 placeholder:text-brand-300 focus:outline-none focus:ring-0"
+              inputClassName="w-full border-0 bg-transparent p-0 text-sm text-brand-700 placeholder:text-brand-300 focus:outline-none focus:ring-0"
             />
           </span>
         </label>
