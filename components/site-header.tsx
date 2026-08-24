@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { signOut } from '@/app/actions/auth';
+import { MobileNav } from '@/components/mobile-nav';
 import type { CurrentUser } from '@/lib/auth';
 import type { HostVerificationStatus } from '@/types/database.types';
 
@@ -11,7 +12,7 @@ const NAV_LINKS = [
 export function SiteHeader({ user }: { user: CurrentUser | null }) {
   return (
     <header className="sticky top-0 z-40 border-b border-brand-950/5 bg-white/80 backdrop-blur-md">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-3.5">
+      <div className="relative mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-3.5">
         <Link href="/" className="flex items-center gap-2">
           <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-brand-700 text-white">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
@@ -57,6 +58,7 @@ export function SiteHeader({ user }: { user: CurrentUser | null }) {
         </nav>
 
         <div className="flex items-center gap-2 text-sm">
+          <MobileNav user={user} />
           {!user?.host && (
             <Link
               href="/list-your-property"
@@ -84,13 +86,13 @@ export function SiteHeader({ user }: { user: CurrentUser | null }) {
             <>
               <Link
                 href="/login"
-                className="rounded-full px-3.5 py-2 font-medium text-brand-700 transition hover:bg-brand-50 hover:text-brand-900"
+                className="whitespace-nowrap rounded-full px-3.5 py-2 font-medium text-brand-700 transition hover:bg-brand-50 hover:text-brand-900"
               >
                 Sign in
               </Link>
               <Link
                 href="/signup"
-                className="rounded-full bg-brand-800 px-4 py-2 font-semibold text-white shadow-soft transition hover:bg-brand-900"
+                className="whitespace-nowrap rounded-full bg-brand-800 px-4 py-2 font-semibold text-white shadow-soft transition hover:bg-brand-900"
               >
                 Sign up
               </Link>
