@@ -3,7 +3,8 @@
 import { useMemo, useState } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { createBooking, type BookingFormState } from '@/app/actions/bookings';
-import { formatCurrency, nightsBetween, todayISO, addDays } from '@/lib/format';
+import { formatCurrency, formatDate, nightsBetween, addDays } from '@/lib/format';
+import { DateRangeCalendar } from '@/components/date-range-calendar';
 import type { AvailabilityDay } from '@/lib/data/listings';
 
 const initialState: BookingFormState = { error: null };
@@ -57,31 +58,28 @@ export function BookingForm({
       <input type="hidden" name="listingId" value={listingId} />
       <input type="hidden" name="listingSlug" value={listingSlug} />
 
-      <div className="grid grid-cols-2 gap-3">
-        <label className="flex flex-col gap-1 text-xs font-medium text-brand-500">
-          Check-in
-          <input
-            type="date"
-            name="checkIn"
-            min={todayISO()}
-            value={checkIn}
-            onChange={(e) => setCheckIn(e.target.value)}
-            required
-            className="rounded-xl border border-brand-950/10 px-3 py-2.5 text-sm text-brand-900 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
+      <input type="hidden" name="checkIn" value={checkIn} />
+      <input type="hidden" name="checkOut" value={checkOut} />
+
+      <div>
+        <p className="text-xs font-medium text-brand-500">
+          {checkIn && checkOut
+            ? `${formatDate(checkIn)} – ${formatDate(checkOut)}`
+            : checkIn
+              ? `${formatDate(checkIn)} – choose check-out`
+              : 'Choose your dates'}
+        </p>
+        <div className="mt-2 rounded-2xl border border-brand-950/10 p-4">
+          <DateRangeCalendar
+            availability={availability}
+            checkIn={checkIn}
+            checkOut={checkOut}
+            onChange={(nextCheckIn, nextCheckOut) => {
+              setCheckIn(nextCheckIn);
+              setCheckOut(nextCheckOut);
+            }}
           />
-        </label>
-        <label className="flex flex-col gap-1 text-xs font-medium text-brand-500">
-          Check-out
-          <input
-            type="date"
-            name="checkOut"
-            min={checkIn ? addDays(checkIn, 1) : todayISO()}
-            value={checkOut}
-            onChange={(e) => setCheckOut(e.target.value)}
-            required
-            className="rounded-xl border border-brand-950/10 px-3 py-2.5 text-sm text-brand-900 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
-          />
-        </label>
+        </div>
       </div>
 
       <label className="flex flex-col gap-1 text-xs font-medium text-brand-500">
