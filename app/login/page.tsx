@@ -8,6 +8,7 @@ export default function LoginPage({
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
   const redirectTo = typeof searchParams.redirect === 'string' ? searchParams.redirect : '/';
+  const googleUnavailable = searchParams.error === 'google_unavailable';
 
   return (
     <main className="mx-auto flex min-h-[calc(100vh-64px)] max-w-sm items-center px-6 py-16">
@@ -15,6 +16,12 @@ export default function LoginPage({
         <div className="rounded-3xl border border-brand-950/5 p-8 shadow-soft">
           <h1 className="text-2xl font-bold text-brand-950">Sign in</h1>
           <p className="mt-1 text-sm text-brand-500">Welcome back to DheySa.</p>
+          {googleUnavailable && (
+            <p className="mt-4 rounded-xl bg-red-50 px-4 py-2.5 text-sm text-red-600">
+              Google sign-in isn&apos;t available right now. Please use email and password, or try
+              again shortly.
+            </p>
+          )}
           <div className="mt-6">
             <LoginForm redirectTo={redirectTo} />
           </div>

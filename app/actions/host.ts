@@ -85,3 +85,36 @@ export async function signUpHost(_prevState: HostSignupState, formData: FormData
 
   redirect(`/host-signup/thanks?email=${encodeURIComponent(email)}`);
 }
+
+// Google-signed-up hosts land here already authenticated — Google gives us
+// a name/email but not a business name or phone, so this collects just
+// those and reuses applyHostApplication directly (no metadata-stashing
+// trick needed since a session already exists, unlike the password path).
+export async function completeHostApplication(
+  _prevState: HostSignupState,
+  formData: FormData
+): Promise<HostSignupState> {
+  const phone = String(formData.get('phone') ?? '').trim();
+  const businessName = String(formData.get('businessName') ?? '').trim();
+
+  if (!businessName) {
+    return { error: 'Tell us the name of your property or business.' };
+  }
+
+  try {
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return { error: 'Sign in to continue.' };
+    }
+
+    await applyHostApplication(supabase, user.id, { phone, businessName });
+  } catch (error) {
+    console.error('completeHostApplication failed:', error);
+    return { error: CONFIG_ERROR };
+  }
+
+  redirect('/host/listings/new');
+}

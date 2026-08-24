@@ -1,11 +1,44 @@
 'use server';
 
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
 
 export type AuthFormState = { error: string | null };
 
 const CONFIG_ERROR = 'Sign-in is temporarily unavailable. Please try again shortly.';
+
+// Shared by guest login, guest sign-up, and (via /host-signup/complete)
+// host sign-up. `next` is where /auth/callback should send the browser
+// once the OAuth round-trip finishes — for guests that's wherever they
+// were headed, for hosts it's the page that collects the business details
+// Google doesn't give us.
+export async function signInWithGoogle(formData: FormData): Promise<void> {
+  const next = String(formData.get('next') ?? '/');
+  let redirectUrl: string | null = null;
+
+  try {
+    const supabase = createClient();
+    const headersList = headers();
+    const host = headersList.get('host');
+    const protocol = headersList.get('x-forwarded-proto') ?? 'https';
+    const origin = host ? `${protocol}://${host}` : '';
+
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(next)}`,
+        skipBrowserRedirect: true,
+      },
+    });
+
+    if (!error) redirectUrl = data.url;
+  } catch (error) {
+    console.error('signInWithGoogle failed:', error);
+  }
+
+  redirect(redirectUrl ?? `/login?error=google_unavailable`);
+}
 
 export async function signIn(_prevState: AuthFormState, formData: FormData): Promise<AuthFormState> {
   const email = String(formData.get('email') ?? '');

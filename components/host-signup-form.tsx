@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useFormState, useFormStatus } from 'react-dom';
 import { signUpHost, type HostSignupState } from '@/app/actions/host';
+import { GoogleAuthButton, AuthDivider } from '@/components/google-auth-button';
 
 const initialState: HostSignupState = { error: null };
 
@@ -61,16 +62,29 @@ export function HostSignupForm() {
   }
 
   return (
-    <form action={formAction} onSubmit={handleSubmit} className="space-y-5">
+    <div className="space-y-5">
       <StepIndicator step={step} />
 
+      {/* Rendered outside the <form> below — a <form> can't nest inside
+          another <form>, and GoogleAuthButton is its own form. */}
+      {step === 1 && (
+        <div>
+          <h1 className="text-2xl font-bold text-brand-950">Create your host account</h1>
+          <p className="mt-1 text-sm text-brand-500">Create an account to list and manage your property.</p>
+          <div className="mt-6">
+            <GoogleAuthButton next="/host-signup/complete" label="Continue with Google" />
+          </div>
+          <div className="mt-4">
+            <AuthDivider />
+          </div>
+        </div>
+      )}
+
+      <form action={formAction} onSubmit={handleSubmit} className="space-y-5">
       {/* All three steps stay mounted so their values are included in the
           final submit — only the active one is visible. */}
       <div className={step === 1 ? 'block' : 'hidden'}>
-        <h1 className="text-2xl font-bold text-brand-950">Create your host account</h1>
-        <p className="mt-1 text-sm text-brand-500">Create an account to list and manage your property.</p>
-
-        <label className="mt-6 flex flex-col gap-1 text-xs font-medium text-brand-500">
+        <label className="flex flex-col gap-1 text-xs font-medium text-brand-500">
           Email address
           <input
             type="email"
@@ -223,7 +237,8 @@ export function HostSignupForm() {
       <input type="hidden" name="lastName" value={lastName} />
       <input type="hidden" name="phone" value={phone} />
       <input type="hidden" name="businessName" value={businessName} />
-    </form>
+      </form>
+    </div>
   );
 }
 
