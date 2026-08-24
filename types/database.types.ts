@@ -53,6 +53,7 @@ export interface Database {
           user_id: string;
           business_name: string;
           bio: string | null;
+          contact_phone: string | null;
           verification_status: HostVerificationStatus;
           payout_details: Json;
           created_at: string;
@@ -63,6 +64,7 @@ export interface Database {
           user_id: string;
           business_name: string;
           bio?: string | null;
+          contact_phone?: string | null;
           verification_status?: HostVerificationStatus;
           payout_details?: Json;
         };

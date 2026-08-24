@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
-import { Building2, ArrowLeft } from 'lucide-react';
+import { Building2, ArrowLeft, Phone } from 'lucide-react';
 import { getCurrentUser } from '@/lib/auth';
 import { getBookingById } from '@/lib/data/bookings';
 import { cancelBooking } from '@/app/actions/bookings';
@@ -39,7 +39,15 @@ export default async function TripDetailPage({
         <Building2 size={12} />
         {booking.listings ? titleCase(booking.listings.type) : ''}
       </p>
-      <h1 className="mt-1 text-2xl font-bold text-brand-950">{booking.listings?.title ?? 'Booking'}</h1>
+      <h1 className="mt-1 text-2xl font-bold text-brand-950">
+        {booking.listings ? (
+          <Link href={`/listings/${booking.listings.slug}`} className="hover:underline">
+            {booking.listings.title}
+          </Link>
+        ) : (
+          'Booking'
+        )}
+      </h1>
       <p className="mt-1 text-sm text-brand-500">{booking.listings?.location}</p>
 
       {cancelFailed && (
@@ -77,6 +85,24 @@ export default async function TripDetailPage({
           <dd className="font-mono text-xs text-brand-500">{booking.id}</dd>
         </div>
       </dl>
+
+      {booking.listings?.hosts && (booking.listings.hosts.business_name || booking.listings.hosts.contact_phone) && (
+        <div className="mt-6 rounded-3xl border border-brand-950/5 p-6 text-sm">
+          <p className="font-bold text-brand-950">Your host</p>
+          {booking.listings.hosts.business_name && (
+            <p className="mt-1 text-brand-700">{booking.listings.hosts.business_name}</p>
+          )}
+          {booking.listings.hosts.contact_phone && (
+            <a
+              href={`tel:${booking.listings.hosts.contact_phone}`}
+              className="mt-2 inline-flex items-center gap-1.5 font-semibold text-brand-800 hover:underline"
+            >
+              <Phone size={14} />
+              {booking.listings.hosts.contact_phone}
+            </a>
+          )}
+        </div>
+      )}
 
       {booking.status === 'pending' && (
         <div className="mt-6 rounded-3xl border border-accent-200 bg-accent-50 p-6 text-sm text-accent-900">

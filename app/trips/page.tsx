@@ -50,7 +50,10 @@ export default async function TripsPage() {
                 key={booking.id}
                 className="flex gap-4 rounded-2xl border border-brand-950/5 p-4 shadow-soft"
               >
-                <div className="relative h-24 w-32 shrink-0 overflow-hidden rounded-xl bg-brand-100">
+                <Link
+                  href={booking.listings ? `/listings/${booking.listings.slug}` : `/trips/${booking.id}`}
+                  className="relative h-24 w-32 shrink-0 overflow-hidden rounded-xl bg-brand-100"
+                >
                   {booking.listings?.images?.[0] && (
                     <Image
                       src={booking.listings.images[0]}
@@ -60,7 +63,7 @@ export default async function TripsPage() {
                       sizes="128px"
                     />
                   )}
-                </div>
+                </Link>
                 <div className="flex flex-1 flex-col justify-between">
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-wide text-brand-400">
@@ -69,6 +72,14 @@ export default async function TripsPage() {
                     <Link href={`/trips/${booking.id}`} className="font-bold text-brand-950 hover:underline">
                       {booking.listings?.title ?? 'Listing'}
                     </Link>
+                    {booking.listings && (
+                      <Link
+                        href={`/listings/${booking.listings.slug}`}
+                        className="ml-2 text-xs font-medium text-brand-500 hover:underline"
+                      >
+                        View listing
+                      </Link>
+                    )}
                     <p className="text-sm text-brand-500">
                       {booking.check_in && booking.check_out
                         ? formatDateRange(booking.check_in, booking.check_out)
