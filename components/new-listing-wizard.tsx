@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
-import { Building2, Home, Compass, Car } from 'lucide-react';
+import { Building2, Home, Compass, Car, X } from 'lucide-react';
 import { submitListing, type ListingFormState } from '@/app/actions/listings';
 import { formatCurrency } from '@/lib/format';
 import { PhotoUpload } from '@/components/photo-upload';
@@ -22,6 +22,7 @@ const COMMISSION_RATE = 0.05;
 type Step = 1 | 2 | 3 | 4;
 type PropertyType = 'hotel' | 'homestay' | '';
 type PetsAllowed = 'yes' | 'upon_request' | 'no';
+type RoomType = { name: string; price: string; maxGuests: string; count: string };
 
 export function NewListingWizard() {
   const [state, formAction] = useFormState(submitListing, initialState);
@@ -39,6 +40,7 @@ export function NewListingWizard() {
   const [bedrooms, setBedrooms] = useState('1');
   const [bathrooms, setBathrooms] = useState('1');
   const [roomCount, setRoomCount] = useState('1');
+  const [roomTypes, setRoomTypes] = useState<RoomType[]>([]);
   const [sizeSqm, setSizeSqm] = useState('');
   const [amenities, setAmenities] = useState<string[]>([]);
   const [languages, setLanguages] = useState<string[]>(['English']);
@@ -54,6 +56,18 @@ export function NewListingWizard() {
 
   function toggleFrom(list: string[], setList: (v: string[]) => void, name: string) {
     setList(list.includes(name) ? list.filter((a) => a !== name) : [...list, name]);
+  }
+
+  function addRoomType() {
+    setRoomTypes((prev) => [...prev, { name: '', price: '', maxGuests: '2', count: '1' }]);
+  }
+
+  function updateRoomType(index: number, field: keyof RoomType, value: string) {
+    setRoomTypes((prev) => prev.map((rt, i) => (i === index ? { ...rt, [field]: value } : rt)));
+  }
+
+  function removeRoomType(index: number) {
+    setRoomTypes((prev) => prev.filter((_, i) => i !== index));
   }
 
   function goToStep2() {
@@ -243,6 +257,77 @@ export function NewListingWizard() {
           </label>
         </div>
 
+        {type === 'hotel' && (
+          <div className="mt-5">
+            <p className="text-xs font-medium text-brand-500">Room types (optional)</p>
+            <p className="mt-0.5 text-xs text-brand-400">
+              Describe the different rooms you offer — guests will see these on your listing.
+            </p>
+            <div className="mt-2 space-y-3">
+              {roomTypes.map((rt, i) => (
+                <div key={i} className="rounded-xl border border-brand-950/10 p-3">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={rt.name}
+                      onChange={(e) => updateRoomType(i, 'name', e.target.value)}
+                      placeholder="e.g. Deluxe Room"
+                      className="flex-1 rounded-lg border border-brand-950/10 px-3 py-2 text-sm text-brand-900 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeRoomType(i)}
+                      aria-label="Remove room type"
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-brand-400 transition hover:bg-brand-50 hover:text-brand-700"
+                    >
+                      <X size={15} />
+                    </button>
+                  </div>
+                  <div className="mt-2 grid grid-cols-3 gap-2">
+                    <label className="flex flex-col gap-1 text-[11px] font-medium text-brand-500">
+                      Price / night
+                      <input
+                        type="number"
+                        min={1}
+                        value={rt.price}
+                        onChange={(e) => updateRoomType(i, 'price', e.target.value)}
+                        className="rounded-lg border border-brand-950/10 px-2.5 py-2 text-sm text-brand-900 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
+                      />
+                    </label>
+                    <label className="flex flex-col gap-1 text-[11px] font-medium text-brand-500">
+                      Max guests
+                      <input
+                        type="number"
+                        min={1}
+                        value={rt.maxGuests}
+                        onChange={(e) => updateRoomType(i, 'maxGuests', e.target.value)}
+                        className="rounded-lg border border-brand-950/10 px-2.5 py-2 text-sm text-brand-900 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
+                      />
+                    </label>
+                    <label className="flex flex-col gap-1 text-[11px] font-medium text-brand-500">
+                      Rooms available
+                      <input
+                        type="number"
+                        min={1}
+                        value={rt.count}
+                        onChange={(e) => updateRoomType(i, 'count', e.target.value)}
+                        className="rounded-lg border border-brand-950/10 px-2.5 py-2 text-sm text-brand-900 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
+                      />
+                    </label>
+                  </div>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={addRoomType}
+                className="text-sm font-semibold text-brand-700 transition hover:text-brand-900"
+              >
+                + Add room type
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="mt-5">
           <p className="text-xs font-medium text-brand-500">Amenities</p>
           <div className="mt-2 space-y-3">
@@ -395,6 +480,16 @@ export function NewListingWizard() {
           />
           <SummaryRow label="Guests" value={maxGuests || '—'} />
           <SummaryRow label="Photos" value={images.length ? `${images.length} added` : 'None added'} />
+          {type === 'hotel' && (
+            <SummaryRow
+              label="Room types"
+              value={
+                roomTypes.filter((rt) => rt.name.trim()).length
+                  ? `${roomTypes.filter((rt) => rt.name.trim()).length} added`
+                  : 'None added'
+              }
+            />
+          )}
           <SummaryRow label="Languages" value={languages.length ? languages.join(', ') : '—'} />
           <SummaryRow label="Amenities" value={amenities.length ? amenities.join(', ') : 'None selected'} />
         </dl>
@@ -426,6 +521,11 @@ export function NewListingWizard() {
       <input type="hidden" name="bedrooms" value={bedrooms} />
       <input type="hidden" name="bathrooms" value={bathrooms} />
       <input type="hidden" name="roomCount" value={roomCount} />
+      <input
+        type="hidden"
+        name="roomTypes"
+        value={JSON.stringify(roomTypes.filter((rt) => rt.name.trim()))}
+      />
       <input type="hidden" name="sizeSqm" value={sizeSqm} />
       <input type="hidden" name="smokingAllowed" value={String(smokingAllowed)} />
       <input type="hidden" name="partiesAllowed" value={String(partiesAllowed)} />

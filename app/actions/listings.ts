@@ -35,6 +35,23 @@ export async function submitListing(_prevState: ListingFormState, formData: Form
   const languages = formData.getAll('languages').map(String);
   const images = formData.getAll('images').map(String);
 
+  let roomTypes: Array<{ name: string; price: number; max_guests: number; count: number }> = [];
+  try {
+    const raw = JSON.parse(String(formData.get('roomTypes') ?? '[]'));
+    if (Array.isArray(raw)) {
+      roomTypes = raw
+        .map((rt) => ({
+          name: String(rt?.name ?? '').trim(),
+          price: Number(rt?.price) || 0,
+          max_guests: Number(rt?.maxGuests) || 0,
+          count: Number(rt?.count) || 0,
+        }))
+        .filter((rt) => rt.name);
+    }
+  } catch {
+    roomTypes = [];
+  }
+
   const houseRules = {
     smoking_allowed: formData.get('smokingAllowed') === 'true',
     parties_allowed: formData.get('partiesAllowed') === 'true',
@@ -112,7 +129,7 @@ export async function submitListing(_prevState: ListingFormState, formData: Form
         size_sqm: sizeSqm,
         languages_spoken: languages,
         house_rules: houseRules,
-        ...(type === 'hotel' ? { room_count: roomCount } : {}),
+        ...(type === 'hotel' ? { room_count: roomCount, room_types: roomTypes } : {}),
       },
     });
 

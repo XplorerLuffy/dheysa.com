@@ -25,6 +25,14 @@ export default async function ListingDetailPage({ params }: { params: { slug: st
     ? ((listing.listing_details!.details as any).amenities as string[])
     : [];
   const maxGuests = (listing.listing_details?.details as any)?.max_guests as number | undefined;
+  const roomTypes = Array.isArray((listing.listing_details?.details as any)?.room_types)
+    ? ((listing.listing_details!.details as any).room_types as Array<{
+        name: string;
+        price: number;
+        max_guests: number;
+        count: number;
+      }>)
+    : [];
   const avgRating = reviews.length
     ? Math.round((reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length) * 10) / 10
     : null;
@@ -72,6 +80,27 @@ export default async function ListingDetailPage({ params }: { params: { slug: st
               <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-brand-600">
                 {listing.description}
               </p>
+            </div>
+          )}
+
+          {roomTypes.length > 0 && (
+            <div>
+              <h2 className="text-lg font-bold text-brand-950">Room types</h2>
+              <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {roomTypes.map((rt, i) => (
+                  <div key={i} className="rounded-2xl border border-brand-950/5 p-4">
+                    <p className="font-semibold text-brand-950">{rt.name}</p>
+                    <p className="mt-1 text-sm text-brand-600">
+                      {formatCurrency(rt.price, listing.currency)} / night
+                    </p>
+                    <p className="mt-0.5 text-xs text-brand-400">
+                      {rt.max_guests ? `Sleeps up to ${rt.max_guests}` : null}
+                      {rt.max_guests && rt.count ? ' · ' : null}
+                      {rt.count ? `${rt.count} available` : null}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
