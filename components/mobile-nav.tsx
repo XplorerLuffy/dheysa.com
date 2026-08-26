@@ -43,7 +43,7 @@ export function MobileNav({ user }: { user: CurrentUser | null }) {
             )}
             {user?.host && (
               <Link
-                href="/host/listings/new"
+                href="/host/listings"
                 onClick={close}
                 className="rounded-xl px-3 py-2.5 hover:bg-brand-50"
               >

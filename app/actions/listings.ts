@@ -16,11 +16,7 @@ function slugify(input: string) {
   );
 }
 
-// Creates a draft listing submitted for review — mirrors the schema's
-// existing "hosts can freely create/edit drafts and submit for review,
-// only an admin may publish" rule (enforce_listing_publish_rules trigger).
-// Nothing here makes a listing live; it just queues it for the team.
-export async function submitListing(_prevState: ListingFormState, formData: FormData): Promise<ListingFormState> {
+function parseListingForm(formData: FormData) {
   const type = String(formData.get('type') ?? '');
   const title = String(formData.get('title') ?? '').trim();
   const location = String(formData.get('location') ?? '').trim();
@@ -64,18 +60,62 @@ export async function submitListing(_prevState: ListingFormState, formData: Form
     },
   };
 
-  if (type !== 'hotel' && type !== 'homestay') {
-    return { error: 'Choose a property type.' };
+  return {
+    type,
+    title,
+    location,
+    description,
+    priceBase,
+    maxGuests,
+    bedrooms,
+    bathrooms,
+    roomCount,
+    sizeSqm,
+    amenities,
+    languages,
+    images,
+    roomTypes,
+    houseRules,
+  };
+}
+
+function validateListingForm(fields: ReturnType<typeof parseListingForm>): string | null {
+  if (fields.type !== 'hotel' && fields.type !== 'homestay') {
+    return 'Choose a property type.';
   }
-  if (!title) {
-    return { error: 'Enter a property name.' };
+  if (!fields.title) {
+    return 'Enter a property name.';
   }
-  if (!location) {
-    return { error: 'Enter a location.' };
+  if (!fields.location) {
+    return 'Enter a location.';
   }
-  if (!priceBase || priceBase <= 0) {
-    return { error: 'Enter a nightly price.' };
+  if (!fields.priceBase || fields.priceBase <= 0) {
+    return 'Enter a nightly price.';
   }
+  return null;
+}
+
+function detailsPayload(fields: ReturnType<typeof parseListingForm>) {
+  return {
+    amenities: fields.amenities,
+    max_guests: fields.maxGuests,
+    bedrooms: fields.bedrooms,
+    bathrooms: fields.bathrooms,
+    size_sqm: fields.sizeSqm,
+    languages_spoken: fields.languages,
+    house_rules: fields.houseRules,
+    ...(fields.type === 'hotel' ? { room_count: fields.roomCount, room_types: fields.roomTypes } : {}),
+  };
+}
+
+// Creates a draft listing submitted for review — mirrors the schema's
+// existing "hosts can freely create/edit drafts and submit for review,
+// only an admin may publish" rule (enforce_listing_publish_rules trigger).
+// Nothing here makes a listing live; it just queues it for the team.
+export async function submitListing(_prevState: ListingFormState, formData: FormData): Promise<ListingFormState> {
+  const fields = parseListingForm(formData);
+  const validationError = validateListingForm(fields);
+  if (validationError) return { error: validationError };
 
   try {
     const supabase = createClient();
@@ -91,7 +131,7 @@ export async function submitListing(_prevState: ListingFormState, formData: Form
       return { error: 'We couldn’t find a host application for your account.' };
     }
 
-    const slug = `${slugify(title)}-${Math.random().toString(36).slice(2, 7)}`;
+    const slug = `${slugify(fields.title)}-${Math.random().toString(36).slice(2, 7)}`;
 
     // Generate the id ourselves instead of reading it back via
     // .select().single() after insert. Confirmed directly against
@@ -105,13 +145,13 @@ export async function submitListing(_prevState: ListingFormState, formData: Form
     const { error: listingError } = await supabase.from('listings').insert({
       id: listingId,
       host_id: host.id,
-      type: type as 'hotel' | 'homestay',
-      title,
+      type: fields.type as 'hotel' | 'homestay',
+      title: fields.title,
       slug,
-      description: description || null,
-      location,
-      price_base: priceBase,
-      images,
+      description: fields.description || null,
+      location: fields.location,
+      price_base: fields.priceBase,
+      images: fields.images,
       status: 'pending_review',
     });
 
@@ -121,16 +161,7 @@ export async function submitListing(_prevState: ListingFormState, formData: Form
 
     const { error: detailsError } = await supabase.from('listing_details').insert({
       listing_id: listingId,
-      details: {
-        amenities,
-        max_guests: maxGuests,
-        bedrooms,
-        bathrooms,
-        size_sqm: sizeSqm,
-        languages_spoken: languages,
-        house_rules: houseRules,
-        ...(type === 'hotel' ? { room_count: roomCount, room_types: roomTypes } : {}),
-      },
+      details: detailsPayload(fields),
     });
 
     if (detailsError) {
@@ -142,4 +173,60 @@ export async function submitListing(_prevState: ListingFormState, formData: Form
   }
 
   redirect('/host/listings/new/submitted');
+}
+
+// Updates a host's own listing in place. Deliberately never sends `status`
+// — enforce_listing_publish_rules only resets status to pending_review when
+// a non-admin tries to move status INTO 'published' from something else, so
+// leaving it untouched here means editing an already-published listing's
+// content doesn't knock it back into review, while RLS (listings_update_own_or_admin)
+// still guarantees a host can only ever reach their own row.
+export async function updateListing(
+  listingId: string,
+  _prevState: ListingFormState,
+  formData: FormData
+): Promise<ListingFormState> {
+  const fields = parseListingForm(formData);
+  const validationError = validateListingForm(fields);
+  if (validationError) return { error: validationError };
+
+  try {
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return { error: 'Sign in to continue.' };
+    }
+
+    const { error: listingError } = await supabase
+      .from('listings')
+      .update({
+        type: fields.type as 'hotel' | 'homestay',
+        title: fields.title,
+        description: fields.description || null,
+        location: fields.location,
+        price_base: fields.priceBase,
+        images: fields.images,
+      })
+      .eq('id', listingId);
+
+    if (listingError) {
+      return { error: listingError.message };
+    }
+
+    const { error: detailsError } = await supabase
+      .from('listing_details')
+      .update({ details: detailsPayload(fields) })
+      .eq('listing_id', listingId);
+
+    if (detailsError) {
+      return { error: detailsError.message };
+    }
+  } catch (error) {
+    console.error('updateListing failed:', error);
+    return { error: 'Something went wrong. Please try again.' };
+  }
+
+  redirect('/host/listings?updated=1');
 }

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { Building2, Home, Compass, Car, X } from 'lucide-react';
-import { submitListing, type ListingFormState } from '@/app/actions/listings';
+import { submitListing, updateListing, type ListingFormState } from '@/app/actions/listings';
 import { formatCurrency } from '@/lib/format';
 import { PhotoUpload } from '@/components/photo-upload';
 
@@ -24,35 +24,70 @@ type PropertyType = 'hotel' | 'homestay' | '';
 type PetsAllowed = 'yes' | 'upon_request' | 'no';
 type RoomType = { name: string; price: string; maxGuests: string; count: string };
 
-export function NewListingWizard() {
-  const [state, formAction] = useFormState(submitListing, initialState);
+export type NewListingWizardInitial = {
+  type: PropertyType;
+  title: string;
+  location: string;
+  description: string;
+  images: string[];
+  priceBase: string;
+  maxGuests: string;
+  bedrooms: string;
+  bathrooms: string;
+  roomCount: string;
+  roomTypes: RoomType[];
+  sizeSqm: string;
+  amenities: string[];
+  languages: string[];
+  smokingAllowed: boolean;
+  partiesAllowed: boolean;
+  childrenAllowed: boolean;
+  petsAllowed: PetsAllowed;
+  checkInFrom: string;
+  checkInUntil: string;
+  checkOutFrom: string;
+  checkOutUntil: string;
+};
+
+export function NewListingWizard({
+  listingId,
+  initial,
+}: {
+  // When editing an existing listing, pass its id (routes the submit to
+  // updateListing instead of submitListing) and its current values.
+  listingId?: string;
+  initial?: NewListingWizardInitial;
+}) {
+  const editing = Boolean(listingId);
+  const action = listingId ? updateListing.bind(null, listingId) : submitListing;
+  const [state, formAction] = useFormState(action, initialState);
   const [step, setStep] = useState<Step>(1);
   const [stepError, setStepError] = useState<string | null>(null);
 
-  const [type, setType] = useState<PropertyType>('');
-  const [title, setTitle] = useState('');
-  const [location, setLocation] = useState('');
-  const [description, setDescription] = useState('');
-  const [images, setImages] = useState<string[]>([]);
+  const [type, setType] = useState<PropertyType>(initial?.type ?? '');
+  const [title, setTitle] = useState(initial?.title ?? '');
+  const [location, setLocation] = useState(initial?.location ?? '');
+  const [description, setDescription] = useState(initial?.description ?? '');
+  const [images, setImages] = useState<string[]>(initial?.images ?? []);
 
-  const [priceBase, setPriceBase] = useState('');
-  const [maxGuests, setMaxGuests] = useState('2');
-  const [bedrooms, setBedrooms] = useState('1');
-  const [bathrooms, setBathrooms] = useState('1');
-  const [roomCount, setRoomCount] = useState('1');
-  const [roomTypes, setRoomTypes] = useState<RoomType[]>([]);
-  const [sizeSqm, setSizeSqm] = useState('');
-  const [amenities, setAmenities] = useState<string[]>([]);
-  const [languages, setLanguages] = useState<string[]>(['English']);
+  const [priceBase, setPriceBase] = useState(initial?.priceBase ?? '');
+  const [maxGuests, setMaxGuests] = useState(initial?.maxGuests ?? '2');
+  const [bedrooms, setBedrooms] = useState(initial?.bedrooms ?? '1');
+  const [bathrooms, setBathrooms] = useState(initial?.bathrooms ?? '1');
+  const [roomCount, setRoomCount] = useState(initial?.roomCount ?? '1');
+  const [roomTypes, setRoomTypes] = useState<RoomType[]>(initial?.roomTypes ?? []);
+  const [sizeSqm, setSizeSqm] = useState(initial?.sizeSqm ?? '');
+  const [amenities, setAmenities] = useState<string[]>(initial?.amenities ?? []);
+  const [languages, setLanguages] = useState<string[]>(initial?.languages ?? ['English']);
 
-  const [smokingAllowed, setSmokingAllowed] = useState(false);
-  const [partiesAllowed, setPartiesAllowed] = useState(false);
-  const [childrenAllowed, setChildrenAllowed] = useState(true);
-  const [petsAllowed, setPetsAllowed] = useState<PetsAllowed>('no');
-  const [checkInFrom, setCheckInFrom] = useState('14:00');
-  const [checkInUntil, setCheckInUntil] = useState('20:00');
-  const [checkOutFrom, setCheckOutFrom] = useState('06:00');
-  const [checkOutUntil, setCheckOutUntil] = useState('11:00');
+  const [smokingAllowed, setSmokingAllowed] = useState(initial?.smokingAllowed ?? false);
+  const [partiesAllowed, setPartiesAllowed] = useState(initial?.partiesAllowed ?? false);
+  const [childrenAllowed, setChildrenAllowed] = useState(initial?.childrenAllowed ?? true);
+  const [petsAllowed, setPetsAllowed] = useState<PetsAllowed>(initial?.petsAllowed ?? 'no');
+  const [checkInFrom, setCheckInFrom] = useState(initial?.checkInFrom ?? '14:00');
+  const [checkInUntil, setCheckInUntil] = useState(initial?.checkInUntil ?? '20:00');
+  const [checkOutFrom, setCheckOutFrom] = useState(initial?.checkOutFrom ?? '06:00');
+  const [checkOutUntil, setCheckOutUntil] = useState(initial?.checkOutUntil ?? '11:00');
 
   function toggleFrom(list: string[], setList: (v: string[]) => void, name: string) {
     setList(list.includes(name) ? list.filter((a) => a !== name) : [...list, name]);
@@ -463,7 +498,7 @@ export function NewListingWizard() {
       </div>
 
       <div className={step === 4 ? 'block' : 'hidden'}>
-        <h1 className="text-2xl font-bold text-brand-950">Review &amp; submit</h1>
+        <h1 className="text-2xl font-bold text-brand-950">{editing ? 'Review changes' : 'Review & submit'}</h1>
         <p className="mt-1 text-sm text-brand-500">Make sure everything looks right.</p>
 
         <dl className="mt-6 space-y-2.5 rounded-2xl bg-brand-50 p-4 text-sm">
@@ -504,10 +539,12 @@ export function NewListingWizard() {
           >
             Back
           </button>
-          <SubmitButton />
+          <SubmitButton editing={editing} />
         </div>
         <p className="mt-4 text-center text-xs text-brand-400">
-          This submits your listing for review — it won’t be visible to guests until our team approves it.
+          {editing
+            ? 'Changes are saved immediately — a published listing stays published.'
+            : 'This submits your listing for review — it won’t be visible to guests until our team approves it.'}
         </p>
       </div>
 
@@ -548,7 +585,7 @@ export function NewListingWizard() {
   );
 }
 
-function SubmitButton() {
+function SubmitButton({ editing }: { editing: boolean }) {
   const { pending } = useFormStatus();
   return (
     <button
@@ -556,7 +593,7 @@ function SubmitButton() {
       disabled={pending}
       className="flex-1 rounded-xl bg-accent-500 px-4 py-3 font-bold text-brand-950 shadow-soft transition hover:bg-accent-400 disabled:bg-accent-200"
     >
-      {pending ? 'Submitting…' : 'Submit for review'}
+      {pending ? 'Saving…' : editing ? 'Save changes' : 'Submit for review'}
     </button>
   );
 }

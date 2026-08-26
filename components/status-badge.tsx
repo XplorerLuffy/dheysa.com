@@ -5,14 +5,18 @@ const STYLES: Record<string, string> = {
   completed: 'bg-brand-100 text-brand-800',
   paid: 'bg-brand-50 text-brand-700',
   refunded: 'bg-brand-100 text-brand-700',
+  draft: 'bg-brand-50 text-brand-500',
+  pending_review: 'bg-accent-50 text-accent-700',
+  published: 'bg-brand-50 text-brand-700',
+  archived: 'bg-brand-100 text-brand-700',
 };
 
 export function StatusBadge({ status }: { status: string }) {
   return (
     <span
-      className={`rounded-full px-2.5 py-1 text-xs font-semibold capitalize ${STYLES[status] ?? 'bg-brand-100 text-brand-700'}`}
+      className={`rounded-full px-2.5 py-1 text-xs font-semibold ${STYLES[status] ?? 'bg-brand-100 text-brand-700'}`}
     >
-      {status}
+      {status.replace(/(^|_)(\w)/g, (_, sep, c) => (sep ? ' ' : '') + c.toUpperCase())}
     </span>
   );
 }

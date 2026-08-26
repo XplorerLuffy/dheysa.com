@@ -49,7 +49,7 @@ export function SiteHeader({ user }: { user: CurrentUser | null }) {
           )}
           {user?.host && (
             <Link
-              href="/host/listings/new"
+              href="/host/listings"
               className="rounded-full px-3.5 py-2 transition hover:bg-brand-50 hover:text-brand-900"
             >
               My listings
