@@ -61,6 +61,53 @@ export default async function ListingDetailPage({ params }: { params: { slug: st
         <Gallery images={listing.images} title={listing.title} />
       </Reveal>
 
+      {hasRoomTypes && (
+        <Reveal delay={0.12} id="room-types" className="mt-10">
+          <h2 className="text-lg font-bold text-brand-950">Choose your room</h2>
+          <p className="mt-1 text-sm text-brand-500">Each room type has its own price and availability.</p>
+          <div className="mt-3 overflow-x-auto rounded-2xl border border-brand-950/5">
+            <table className="w-full min-w-[640px] border-collapse text-sm">
+              <thead>
+                <tr className="bg-brand-800 text-left text-white">
+                  <th className="px-4 py-3 font-semibold">Room type</th>
+                  <th className="px-4 py-3 font-semibold">Guests</th>
+                  <th className="px-4 py-3 font-semibold">Price / night</th>
+                  <th className="px-4 py-3 font-semibold">Availability</th>
+                  <th className="px-4 py-3" />
+                </tr>
+              </thead>
+              <tbody>
+                {roomTypes.map((rt) => (
+                  <tr key={rt.id} className="border-t border-brand-950/5 even:bg-brand-50/40">
+                    <td className="px-4 py-4 font-semibold text-brand-950">{rt.name}</td>
+                    <td className="px-4 py-4 text-brand-600">
+                      <span className="inline-flex items-center gap-1">
+                        <Users size={14} />
+                        {rt.max_guests}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4 font-bold text-brand-900">
+                      {formatCurrency(rt.price, listing.currency)}
+                    </td>
+                    <td className="px-4 py-4 text-brand-500">
+                      {rt.room_count} room{rt.room_count === 1 ? '' : 's'} of this type
+                    </td>
+                    <td className="px-4 py-4 text-right">
+                      <Link
+                        href={`/listings/${listing.slug}/book?roomType=${rt.id}`}
+                        className="inline-block rounded-full bg-accent-500 px-4 py-2 font-bold text-brand-950 shadow-soft transition hover:bg-accent-400"
+                      >
+                        Select
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Reveal>
+      )}
+
       <div className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-3">
         <StaggerGroup className="space-y-9 lg:col-span-2">
           {listing.hosts?.business_name && (
@@ -78,44 +125,6 @@ export default async function ListingDetailPage({ params }: { params: { slug: st
               <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-brand-600">
                 {listing.description}
               </p>
-            </div>
-          )}
-
-          {hasRoomTypes && (
-            <div id="room-types">
-              <h2 className="text-lg font-bold text-brand-950">Choose your room</h2>
-              <p className="mt-1 text-sm text-brand-500">
-                Each room type has its own price and availability.
-              </p>
-              <div className="mt-3 space-y-3">
-                {roomTypes.map((rt) => (
-                  <div
-                    key={rt.id}
-                    className="flex flex-col gap-3 rounded-2xl border border-brand-950/5 p-4 sm:flex-row sm:items-center sm:justify-between"
-                  >
-                    <div>
-                      <p className="font-semibold text-brand-950">{rt.name}</p>
-                      <p className="mt-1 flex items-center gap-1 text-xs text-brand-500">
-                        <Users size={12} />
-                        Sleeps up to {rt.max_guests} · {rt.room_count} room
-                        {rt.room_count === 1 ? '' : 's'} of this type
-                      </p>
-                    </div>
-                    <div className="flex items-center justify-between gap-4 sm:flex-col sm:items-end sm:justify-start">
-                      <p className="font-bold text-brand-900">
-                        {formatCurrency(rt.price, listing.currency)}
-                        <span className="text-xs font-normal text-brand-400"> / night</span>
-                      </p>
-                      <Link
-                        href={`/listings/${listing.slug}/book?roomType=${rt.id}`}
-                        className="rounded-full bg-accent-500 px-4 py-2 text-sm font-bold text-brand-950 shadow-soft transition hover:bg-accent-400"
-                      >
-                        Select
-                      </Link>
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
           )}
 

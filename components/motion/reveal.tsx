@@ -13,12 +13,13 @@ type RevealProps = {
   className?: string;
   delay?: number;
   y?: number;
+  id?: string;
 };
 
 // Fades + slides a block in the first time it scrolls into view. Used for
 // page sections rather than individual list items — see StaggerGroup for
 // grids/lists that should reveal as a staggered set.
-export function Reveal({ children, className, delay = 0, y = 20 }: RevealProps) {
+export function Reveal({ children, className, delay = 0, y = 20, id }: RevealProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   useGSAP(
@@ -45,7 +46,7 @@ export function Reveal({ children, className, delay = 0, y = 20 }: RevealProps) 
   );
 
   return (
-    <div ref={ref} className={className}>
+    <div ref={ref} className={className} id={id}>
       {children}
     </div>
   );
