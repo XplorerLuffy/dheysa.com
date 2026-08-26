@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { redirect } from 'next/navigation';
-import { Plus, Pencil, ExternalLink, ArrowRight } from 'lucide-react';
+import { Plus, Pencil, ExternalLink, ArrowRight, Send } from 'lucide-react';
 import { getCurrentUser } from '@/lib/auth';
 import { getHostListings } from '@/lib/data/host';
+import { resubmitListing } from '@/app/actions/listings';
 import { StatusBadge } from '@/components/status-badge';
 import { StaggerGroup } from '@/components/motion/stagger-group';
 import { formatCurrency, titleCase } from '@/lib/format';
@@ -89,6 +90,11 @@ export default async function HostListingsPage({
                     <span className="font-normal text-brand-400"> / night</span>
                   </span>
                 </div>
+                {listing.status === 'draft' && (
+                  <p className="text-xs text-brand-500">
+                    Sent back for changes — update it and resubmit when ready.
+                  </p>
+                )}
               </div>
               <div className="flex shrink-0 flex-row gap-4 sm:flex-col sm:items-end sm:justify-between">
                 <Link
@@ -105,6 +111,16 @@ export default async function HostListingsPage({
                   >
                     View live <ExternalLink size={11} />
                   </Link>
+                )}
+                {listing.status === 'draft' && (
+                  <form action={resubmitListing.bind(null, listing.id)}>
+                    <button
+                      type="submit"
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-brand-700 hover:underline"
+                    >
+                      <Send size={12} /> Resubmit
+                    </button>
+                  </form>
                 )}
               </div>
             </li>

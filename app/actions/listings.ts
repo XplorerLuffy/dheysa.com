@@ -230,3 +230,17 @@ export async function updateListing(
 
   redirect('/host/listings?updated=1');
 }
+
+// Sends a rejected (draft) listing back for review. Setting status to
+// 'pending_review' isn't blocked for a host by enforce_listing_publish_rules
+// — only a direct jump to 'published' is — so this is just the status flip,
+// no field validation needed since the listing already has real content.
+export async function resubmitListing(listingId: string): Promise<void> {
+  try {
+    const supabase = createClient();
+    await supabase.from('listings').update({ status: 'pending_review' }).eq('id', listingId);
+  } catch (error) {
+    console.error('resubmitListing failed:', error);
+  }
+  redirect('/host/listings');
+}

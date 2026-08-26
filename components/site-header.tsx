@@ -55,6 +55,14 @@ export function SiteHeader({ user }: { user: CurrentUser | null }) {
               My listings
             </Link>
           )}
+          {user?.profile?.role === 'admin' && (
+            <Link
+              href="/admin"
+              className="rounded-full px-3.5 py-2 transition hover:bg-brand-50 hover:text-brand-900"
+            >
+              Admin
+            </Link>
+          )}
         </nav>
 
         <div className="flex items-center gap-2 text-sm">
