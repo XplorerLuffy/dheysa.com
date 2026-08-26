@@ -1,12 +1,25 @@
 import { NextResponse } from 'next/server';
+import { headers } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
 import { applyHostApplication } from '@/app/actions/host';
 
-// Supabase sends users here after confirming their email or a magic link.
+// Supabase sends users here after confirming their email, a magic link, or
+// an OAuth sign-in (Google). Deliberately reads the Host header instead of
+// new URL(request.url).origin — behind Hostinger's reverse proxy the latter
+// resolves to the app's internal bind address (http://localhost:3000)
+// rather than the public domain, sending every one of these flows to a
+// localhost URL the browser can't reach. headers() reads the forwarded
+// Host header directly, same as the working pattern in signInWithGoogle
+// and signUpHost.
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url);
+  const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');
   const next = searchParams.get('next') ?? '/';
+
+  const headersList = headers();
+  const host = headersList.get('host');
+  const protocol = headersList.get('x-forwarded-proto') ?? 'https';
+  const origin = host ? `${protocol}://${host}` : new URL(request.url).origin;
 
   if (code) {
     const supabase = createClient();
