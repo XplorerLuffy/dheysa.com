@@ -10,6 +10,7 @@ import type {
   ListingRating,
 } from './types';
 import type { ListingType } from '@/types/database.types';
+import { addDays, todayISO } from '@/lib/format';
 
 const NOW = new Date().toISOString();
 const HOST = {
@@ -228,10 +229,10 @@ const DEMO_REVIEWS: Record<string, ListingReview[]> = {
 
 function generateAvailability(days: number): AvailabilityDay[] {
   const out: AvailabilityDay[] = [];
-  const d = new Date();
+  let cursor = todayISO();
   for (let i = 0; i < days; i++) {
-    out.push({ date: d.toISOString().slice(0, 10), slots_available: 3, price_override: null });
-    d.setDate(d.getDate() + 1);
+    out.push({ date: cursor, slots_available: 3, price_override: null });
+    cursor = addDays(cursor, 1);
   }
   return out;
 }

@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import type { ListingType } from '@/types/database.types';
 import { isDemoMode } from '@/lib/demo';
+import { addDays } from '@/lib/format';
 import {
   getDemoFeaturedListings,
   getDemoCuratedCollections,
@@ -159,11 +160,10 @@ async function filterListingIdsByAvailability(
     if (error) throw error;
 
     const nightsNeeded = new Set<string>();
-    let d = new Date(`${checkIn}T00:00:00`);
-    const end = new Date(`${checkOut}T00:00:00`);
-    while (d < end) {
-      nightsNeeded.add(d.toISOString().slice(0, 10));
-      d.setDate(d.getDate() + 1);
+    let cursor = checkIn;
+    while (cursor < checkOut) {
+      nightsNeeded.add(cursor);
+      cursor = addDays(cursor, 1);
     }
 
     const byListing = new Map<string, Map<string, number>>();

@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { nightsBetween } from '@/lib/format';
+import { nightsBetween, addDays } from '@/lib/format';
 import { sendBookingConfirmationEmail } from '@/lib/email';
 
 export type BookingFormState = { error: string | null };
@@ -107,9 +107,7 @@ export async function createBooking(
       return { error: `Not available on ${cursor}. Try different dates.` };
     }
     total += day.price_override ?? basePrice;
-    const next = new Date(`${cursor}T00:00:00`);
-    next.setDate(next.getDate() + 1);
-    cursor = next.toISOString().slice(0, 10);
+    cursor = addDays(cursor, 1);
   }
 
   const { data: booking, error: bookingError } = await supabase
