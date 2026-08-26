@@ -47,6 +47,9 @@ export default async function HostBookingsPage() {
                       {booking.listings.title}
                     </Link>
                   )}
+                  {booking.room_types?.name && (
+                    <p className="text-xs text-brand-500">{booking.room_types.name}</p>
+                  )}
                   <p className="mt-1 text-sm text-brand-500">
                     {booking.check_in && booking.check_out
                       ? formatDateRange(booking.check_in, booking.check_out)

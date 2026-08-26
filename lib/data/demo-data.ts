@@ -126,6 +126,53 @@ const DEMO_DETAILS: Record<string, Record<string, unknown>> = {
   },
 };
 
+const DEMO_ROOM_TYPES: Record<string, ListingDetail['room_types']> = {
+  [DEMO_RIVERSIDE.id]: [
+    {
+      id: 'demo-rt-riverside-standard',
+      listing_id: DEMO_RIVERSIDE.id,
+      name: 'Standard Room',
+      price: 3200,
+      max_guests: 2,
+      room_count: 14,
+      created_at: NOW,
+      updated_at: NOW,
+    },
+    {
+      id: 'demo-rt-riverside-river-view',
+      listing_id: DEMO_RIVERSIDE.id,
+      name: 'River View Room',
+      price: 3800,
+      max_guests: 3,
+      room_count: 8,
+      created_at: NOW,
+      updated_at: NOW,
+    },
+    {
+      id: 'demo-rt-riverside-suite',
+      listing_id: DEMO_RIVERSIDE.id,
+      name: 'Family Suite',
+      price: 5200,
+      max_guests: 4,
+      room_count: 2,
+      created_at: NOW,
+      updated_at: NOW,
+    },
+  ],
+  [DEMO_TOWN_CENTRE.id]: [
+    {
+      id: 'demo-rt-towncentre-standard',
+      listing_id: DEMO_TOWN_CENTRE.id,
+      name: 'Standard Room',
+      price: 2200,
+      max_guests: 2,
+      room_count: 16,
+      created_at: NOW,
+      updated_at: NOW,
+    },
+  ],
+};
+
 const DEMO_CATEGORIES = {
   mindfulness: { id: 'demo-cat-mindfulness', name: 'Mindfulness Retreats', slug: 'mindfulness-retreats' },
   family: { id: 'demo-cat-family', name: 'Family Friendly', slug: 'family-friendly' },
@@ -232,6 +279,7 @@ export async function getDemoListingBySlug(slug: string): Promise<ListingDetail 
     ...found,
     listing_details: { details: DEMO_DETAILS[found.id] ?? {} },
     categories: DEMO_LISTING_CATEGORIES[found.id] ?? [],
+    room_types: DEMO_ROOM_TYPES[found.id] ?? [],
   };
 }
 

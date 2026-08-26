@@ -80,6 +80,9 @@ export default async function TripsPage() {
                         View listing
                       </Link>
                     )}
+                    {booking.room_types?.name && (
+                      <p className="text-xs text-brand-500">{booking.room_types.name}</p>
+                    )}
                     <p className="text-sm text-brand-500">
                       {booking.check_in && booking.check_out
                         ? formatDateRange(booking.check_in, booking.check_out)

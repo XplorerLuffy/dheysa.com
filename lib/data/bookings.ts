@@ -14,10 +14,12 @@ export type BookingWithListing = Booking & {
         hosts: { business_name: string; contact_phone: string | null } | null;
       }
     | null;
+  room_types: { name: string } | null;
   reviews: { id: string }[] | null;
 };
 
-const BOOKING_SELECT = '*, listings(title, slug, images, type, location, hosts(business_name, contact_phone)), reviews(id)';
+const BOOKING_SELECT =
+  '*, listings(title, slug, images, type, location, hosts(business_name, contact_phone)), room_types(name), reviews(id)';
 
 // RLS scopes this to the signed-in guest's own bookings automatically.
 export async function getMyBookings(): Promise<BookingWithListing[]> {

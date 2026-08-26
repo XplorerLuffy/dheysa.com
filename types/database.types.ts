@@ -162,12 +162,54 @@ export interface Database {
         Update: Partial<Database['public']['Tables']['availability']['Insert']>;
         Relationships: Relationship[];
       };
+      room_types: {
+        Row: {
+          id: string;
+          listing_id: string;
+          name: string;
+          price: number;
+          max_guests: number;
+          room_count: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          listing_id: string;
+          name: string;
+          price: number;
+          max_guests?: number;
+          room_count?: number;
+        };
+        Update: Partial<Database['public']['Tables']['room_types']['Insert']>;
+        Relationships: Relationship[];
+      };
+      room_type_availability: {
+        Row: {
+          id: string;
+          room_type_id: string;
+          date: string;
+          slots_available: number;
+          price_override: number | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          room_type_id: string;
+          date: string;
+          slots_available?: number;
+          price_override?: number | null;
+        };
+        Update: Partial<Database['public']['Tables']['room_type_availability']['Insert']>;
+        Relationships: Relationship[];
+      };
       bookings: {
         Row: {
           id: string;
           guest_id: string;
           listing_id: string;
           host_id: string;
+          room_type_id: string | null;
           check_in: string | null;
           check_out: string | null;
           booking_date: string | null;
@@ -186,6 +228,7 @@ export interface Database {
           guest_id: string;
           listing_id: string;
           host_id: string;
+          room_type_id?: string | null;
           check_in?: string | null;
           check_out?: string | null;
           booking_date?: string | null;

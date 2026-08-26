@@ -12,6 +12,7 @@ const initialState: BookingFormState = { error: null };
 export function BookingForm({
   listingId,
   listingSlug,
+  roomTypeId,
   priceBase,
   currency,
   maxGuests,
@@ -22,6 +23,7 @@ export function BookingForm({
 }: {
   listingId: string;
   listingSlug: string;
+  roomTypeId?: string;
   priceBase: number;
   currency: string;
   maxGuests?: number;
@@ -57,6 +59,7 @@ export function BookingForm({
     <form action={formAction} className="space-y-4 rounded-3xl border border-brand-950/5 p-6 shadow-soft">
       <input type="hidden" name="listingId" value={listingId} />
       <input type="hidden" name="listingSlug" value={listingSlug} />
+      {roomTypeId && <input type="hidden" name="roomTypeId" value={roomTypeId} />}
 
       <input type="hidden" name="checkIn" value={checkIn} />
       <input type="hidden" name="checkOut" value={checkOut} />

@@ -16,6 +16,7 @@ function getClient(): Resend | null {
 export async function sendBookingConfirmationEmail(params: {
   to: string;
   listingTitle: string;
+  roomTypeName?: string | null;
   listingLocation: string;
   checkIn: string | null;
   checkOut: string | null;
@@ -55,6 +56,7 @@ export async function sendBookingConfirmationEmail(params: {
         <h1 style="font-size:20px;color:#111827;">Your DheySa booking is confirmed</h1>
         <p style="color:#4b5563;font-size:14px;">${params.listingTitle} &middot; ${params.listingLocation}</p>
         <table style="width:100%;margin-top:16px;font-size:14px;color:#111827;">
+          ${params.roomTypeName ? `<tr><td style="padding:4px 0;color:#6b7280;">Room</td><td style="padding:4px 0;text-align:right;">${params.roomTypeName}</td></tr>` : ''}
           <tr><td style="padding:4px 0;color:#6b7280;">Dates</td><td style="padding:4px 0;text-align:right;">${dates}</td></tr>
           <tr><td style="padding:4px 0;color:#6b7280;">Guests</td><td style="padding:4px 0;text-align:right;">${params.guests}</td></tr>
           <tr><td style="padding:4px 0;color:#6b7280;">Total</td><td style="padding:4px 0;text-align:right;font-weight:bold;">${total}</td></tr>

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { MapPin, Check, ShieldCheck } from 'lucide-react';
+import { MapPin, Check, ShieldCheck, Users } from 'lucide-react';
 import { Gallery } from '@/components/gallery';
 import { AvailabilityPreview } from '@/components/availability-preview';
 import { StarRating } from '@/components/star-rating';
@@ -16,8 +16,11 @@ export default async function ListingDetailPage({ params }: { params: { slug: st
 
   const from = todayISO();
   const to = addDays(from, 60);
+  const roomTypes = listing.room_types ?? [];
+  const hasRoomTypes = roomTypes.length > 0;
+
   const [availability, reviews] = await Promise.all([
-    getAvailability(listing.id, from, to),
+    hasRoomTypes ? Promise.resolve([]) : getAvailability(listing.id, from, to),
     getReviewsForListing(listing.id),
   ]);
 
@@ -25,16 +28,11 @@ export default async function ListingDetailPage({ params }: { params: { slug: st
     ? ((listing.listing_details!.details as any).amenities as string[])
     : [];
   const maxGuests = (listing.listing_details?.details as any)?.max_guests as number | undefined;
-  const roomTypes = Array.isArray((listing.listing_details?.details as any)?.room_types)
-    ? ((listing.listing_details!.details as any).room_types as Array<{
-        name: string;
-        price: number;
-        max_guests: number;
-        count: number;
-      }>)
-    : [];
   const avgRating = reviews.length
     ? Math.round((reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length) * 10) / 10
+    : null;
+  const cheapestRoom = hasRoomTypes
+    ? roomTypes.reduce((min, rt) => (rt.price < min.price ? rt : min), roomTypes[0])
     : null;
 
   return (
@@ -83,21 +81,38 @@ export default async function ListingDetailPage({ params }: { params: { slug: st
             </div>
           )}
 
-          {roomTypes.length > 0 && (
-            <div>
-              <h2 className="text-lg font-bold text-brand-950">Room types</h2>
-              <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                {roomTypes.map((rt, i) => (
-                  <div key={i} className="rounded-2xl border border-brand-950/5 p-4">
-                    <p className="font-semibold text-brand-950">{rt.name}</p>
-                    <p className="mt-1 text-sm text-brand-600">
-                      {formatCurrency(rt.price, listing.currency)} / night
-                    </p>
-                    <p className="mt-0.5 text-xs text-brand-400">
-                      {rt.max_guests ? `Sleeps up to ${rt.max_guests}` : null}
-                      {rt.max_guests && rt.count ? ' · ' : null}
-                      {rt.count ? `${rt.count} available` : null}
-                    </p>
+          {hasRoomTypes && (
+            <div id="room-types">
+              <h2 className="text-lg font-bold text-brand-950">Choose your room</h2>
+              <p className="mt-1 text-sm text-brand-500">
+                Each room type has its own price and availability.
+              </p>
+              <div className="mt-3 space-y-3">
+                {roomTypes.map((rt) => (
+                  <div
+                    key={rt.id}
+                    className="flex flex-col gap-3 rounded-2xl border border-brand-950/5 p-4 sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <div>
+                      <p className="font-semibold text-brand-950">{rt.name}</p>
+                      <p className="mt-1 flex items-center gap-1 text-xs text-brand-500">
+                        <Users size={12} />
+                        Sleeps up to {rt.max_guests} · {rt.room_count} room
+                        {rt.room_count === 1 ? '' : 's'} of this type
+                      </p>
+                    </div>
+                    <div className="flex items-center justify-between gap-4 sm:flex-col sm:items-end sm:justify-start">
+                      <p className="font-bold text-brand-900">
+                        {formatCurrency(rt.price, listing.currency)}
+                        <span className="text-xs font-normal text-brand-400"> / night</span>
+                      </p>
+                      <Link
+                        href={`/listings/${listing.slug}/book?roomType=${rt.id}`}
+                        className="rounded-full bg-accent-500 px-4 py-2 text-sm font-bold text-brand-950 shadow-soft transition hover:bg-accent-400"
+                      >
+                        Select
+                      </Link>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -118,13 +133,15 @@ export default async function ListingDetailPage({ params }: { params: { slug: st
             </div>
           )}
 
-          <div>
-            <h2 className="text-lg font-bold text-brand-950">Availability</h2>
-            <p className="mt-1 text-xs text-brand-400">Next 60 days</p>
-            <div className="mt-3">
-              <AvailabilityPreview days={availability} />
+          {!hasRoomTypes && (
+            <div>
+              <h2 className="text-lg font-bold text-brand-950">Availability</h2>
+              <p className="mt-1 text-xs text-brand-400">Next 60 days</p>
+              <div className="mt-3">
+                <AvailabilityPreview days={availability} />
+              </div>
             </div>
-          </div>
+          )}
 
           {listing.categories.length > 0 && (
             <div className="flex flex-wrap gap-2">
@@ -169,17 +186,22 @@ export default async function ListingDetailPage({ params }: { params: { slug: st
           <aside className="h-fit rounded-3xl border border-brand-950/5 p-6 shadow-soft lg:sticky lg:top-24">
             <div className="flex items-start justify-between gap-3">
               <p className="text-2xl font-bold text-brand-950">
-                {formatCurrency(listing.price_base, listing.currency)}
+                {hasRoomTypes && (
+                  <span className="text-sm font-normal text-brand-400">from </span>
+                )}
+                {formatCurrency(hasRoomTypes ? cheapestRoom!.price : listing.price_base, listing.currency)}
                 <span className="text-sm font-normal text-brand-400"> / night</span>
               </p>
               {avgRating && <ScoreBadge avgRating={avgRating} reviewCount={reviews.length} />}
             </div>
-            {maxGuests && <p className="mt-1 text-sm text-brand-500">Sleeps up to {maxGuests} guests</p>}
+            {!hasRoomTypes && maxGuests && (
+              <p className="mt-1 text-sm text-brand-500">Sleeps up to {maxGuests} guests</p>
+            )}
             <Link
-              href={`/listings/${listing.slug}/book`}
+              href={hasRoomTypes ? '#room-types' : `/listings/${listing.slug}/book`}
               className="mt-5 block w-full rounded-2xl bg-accent-500 px-4 py-3.5 text-center font-bold text-brand-950 shadow-soft transition hover:bg-accent-400"
             >
-              Book now
+              {hasRoomTypes ? 'Choose a room' : 'Book now'}
             </Link>
             <p className="mt-3 text-center text-xs text-brand-400">
               You won&apos;t be charged yet. We hold your dates for 15 minutes while you complete

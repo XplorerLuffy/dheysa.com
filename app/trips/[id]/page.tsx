@@ -49,6 +49,9 @@ export default async function TripDetailPage({
         )}
       </h1>
       <p className="mt-1 text-sm text-brand-500">{booking.listings?.location}</p>
+      {booking.room_types?.name && (
+        <p className="mt-1 text-sm font-semibold text-brand-700">{booking.room_types.name}</p>
+      )}
 
       {cancelFailed && (
         <p className="mt-4 rounded-xl bg-red-50 px-4 py-2.5 text-sm text-red-600">

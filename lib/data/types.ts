@@ -25,9 +25,12 @@ export type CuratedCollection = {
   listings: ListingWithHost[];
 };
 
+export type RoomType = Database['public']['Tables']['room_types']['Row'];
+
 export type ListingDetail = ListingWithHost & {
   listing_details: { details: Record<string, unknown> } | null;
   categories: { id: string; name: string; slug: string }[];
+  room_types: RoomType[];
 };
 
 export type AvailabilityDay = {

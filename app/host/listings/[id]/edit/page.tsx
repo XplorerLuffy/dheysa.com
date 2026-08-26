@@ -18,14 +18,13 @@ export default async function EditListingPage({ params }: { params: { id: string
   const houseRules = (details.house_rules ?? {}) as Record<string, unknown>;
   const checkIn = (houseRules.check_in ?? {}) as Record<string, unknown>;
   const checkOut = (houseRules.check_out ?? {}) as Record<string, unknown>;
-  const roomTypes = Array.isArray(details.room_types)
-    ? (details.room_types as Array<Record<string, unknown>>).map((rt) => ({
-        name: String(rt.name ?? ''),
-        price: String(rt.price ?? ''),
-        maxGuests: String(rt.max_guests ?? ''),
-        count: String(rt.count ?? ''),
-      }))
-    : [];
+  const roomTypes = (listing.room_types ?? []).map((rt) => ({
+    id: rt.id,
+    name: rt.name,
+    price: String(rt.price),
+    maxGuests: String(rt.max_guests),
+    count: String(rt.room_count),
+  }));
 
   const initial: NewListingWizardInitial = {
     type: listing.type === 'hotel' || listing.type === 'homestay' ? listing.type : '',

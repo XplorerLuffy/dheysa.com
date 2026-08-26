@@ -22,7 +22,7 @@ const COMMISSION_RATE = 0.05;
 type Step = 1 | 2 | 3 | 4;
 type PropertyType = 'hotel' | 'homestay' | '';
 type PetsAllowed = 'yes' | 'upon_request' | 'no';
-type RoomType = { name: string; price: string; maxGuests: string; count: string };
+type RoomType = { id?: string; name: string; price: string; maxGuests: string; count: string };
 
 export type NewListingWizardInitial = {
   type: PropertyType;
@@ -127,6 +127,10 @@ export function NewListingWizard({
     const price = Number(priceBase);
     if (!price || price <= 0) {
       setStepError('Enter a nightly price.');
+      return;
+    }
+    if (type === 'hotel' && roomTypes.filter((rt) => rt.name.trim()).length === 0) {
+      setStepError('Add at least one room type — that’s what guests actually book.');
       return;
     }
     setStepError(null);
@@ -294,9 +298,9 @@ export function NewListingWizard({
 
         {type === 'hotel' && (
           <div className="mt-5">
-            <p className="text-xs font-medium text-brand-500">Room types (optional)</p>
+            <p className="text-xs font-medium text-brand-500">Room types</p>
             <p className="mt-0.5 text-xs text-brand-400">
-              Describe the different rooms you offer — guests will see these on your listing.
+              Add at least one — guests book a specific room type, not the hotel as a whole.
             </p>
             <div className="mt-2 space-y-3">
               {roomTypes.map((rt, i) => (

@@ -192,7 +192,7 @@ export async function getListingBySlug(slug: string): Promise<ListingDetail | nu
     const { data, error } = await supabase
       .from('listings')
       .select(
-        '*, hosts(business_name, bio), listing_details(details), listing_categories(categories(id, name, slug))'
+        '*, hosts(business_name, bio), listing_details(details), listing_categories(categories(id, name, slug)), room_types(*)'
       )
       .eq('slug', slug)
       .eq('status', 'published')
@@ -204,9 +204,31 @@ export async function getListingBySlug(slug: string): Promise<ListingDetail | nu
       .map((row: any) => row.categories)
       .filter(Boolean);
 
-    return { ...(data as any), categories } as ListingDetail;
+    return { ...(data as any), categories, room_types: (data as any).room_types ?? [] } as ListingDetail;
   } catch {
     return null;
+  }
+}
+
+export async function getRoomTypeAvailability(
+  roomTypeId: string,
+  from: string,
+  to: string
+): Promise<AvailabilityDay[]> {
+  if (isDemoMode()) return getDemoAvailability(from, to);
+  try {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from('room_type_availability')
+      .select('date, slots_available, price_override')
+      .eq('room_type_id', roomTypeId)
+      .gte('date', from)
+      .lt('date', to)
+      .order('date');
+    if (error) throw error;
+    return data ?? [];
+  } catch {
+    return [];
   }
 }
 
