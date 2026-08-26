@@ -63,7 +63,7 @@ export default async function ListingDetailPage({ params }: { params: { slug: st
 
       {hasRoomTypes && (
         <Reveal delay={0.12} id="room-types" className="mt-10">
-          <h2 className="text-lg font-bold text-brand-950">Choose your room</h2>
+          <h2 className="text-lg font-bold text-brand-950">Availability</h2>
           <p className="mt-1 text-sm text-brand-500">Each room type has its own price and availability.</p>
           <div className="mt-3 overflow-x-auto rounded-2xl border border-brand-950/5">
             <table className="w-full min-w-[640px] border-collapse text-sm">
