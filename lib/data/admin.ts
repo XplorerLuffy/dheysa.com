@@ -44,3 +44,28 @@ export async function getPendingListings(): Promise<PendingListing[]> {
     return [];
   }
 }
+
+export type AdminBooking = Database['public']['Tables']['bookings']['Row'] & {
+  listings: { title: string; slug: string } | null;
+  room_types: { name: string } | null;
+  hosts: { business_name: string } | null;
+  profiles: { full_name: string | null } | null;
+};
+
+// No host_id filter — the bookings_select_guest_or_host_or_admin RLS
+// policy already returns every booking for an is_admin() caller, so this
+// spans all hosts (unlike lib/data/host.ts's getHostBookings).
+export async function getAllBookings(): Promise<AdminBooking[]> {
+  try {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from('bookings')
+      .select('*, listings(title, slug), room_types(name), hosts(business_name), profiles(full_name)')
+      .order('created_at', { ascending: false })
+      .limit(200);
+    if (error) throw error;
+    return (data ?? []) as unknown as AdminBooking[];
+  } catch {
+    return [];
+  }
+}

@@ -1,9 +1,13 @@
 import Link from 'next/link';
-import { ArrowRight, Building2, Users2 } from 'lucide-react';
-import { getPendingHosts, getPendingListings } from '@/lib/data/admin';
+import { ArrowRight, Building2, Users2, CalendarDays } from 'lucide-react';
+import { getPendingHosts, getPendingListings, getAllBookings } from '@/lib/data/admin';
 
 export default async function AdminPage() {
-  const [pendingHosts, pendingListings] = await Promise.all([getPendingHosts(), getPendingListings()]);
+  const [pendingHosts, pendingListings, bookings] = await Promise.all([
+    getPendingHosts(),
+    getPendingListings(),
+    getAllBookings(),
+  ]);
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
@@ -38,6 +42,22 @@ export default async function AdminPage() {
             <div>
               <p className="font-bold text-brand-950">Listings</p>
               <p className="text-sm text-brand-500">{pendingListings.length} pending review</p>
+            </div>
+          </div>
+          <ArrowRight size={16} className="text-brand-400" />
+        </Link>
+
+        <Link
+          href="/admin/bookings"
+          className="flex items-center justify-between rounded-2xl border border-brand-950/5 p-5 shadow-soft transition hover:border-brand-300"
+        >
+          <div className="flex items-center gap-3">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-700">
+              <CalendarDays size={18} />
+            </span>
+            <div>
+              <p className="font-bold text-brand-950">Bookings</p>
+              <p className="text-sm text-brand-500">{bookings.length} recent</p>
             </div>
           </div>
           <ArrowRight size={16} className="text-brand-400" />

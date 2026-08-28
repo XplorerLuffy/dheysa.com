@@ -1,11 +1,12 @@
 import Link from 'next/link';
-import { LayoutDashboard, Users2, Building2, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users2, Building2, CalendarDays, LogOut } from 'lucide-react';
 import { signOut } from '@/app/actions/auth';
 
 const LINKS = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/hosts', label: 'Host applications', icon: Users2 },
   { href: '/admin/listings', label: 'Listings', icon: Building2 },
+  { href: '/admin/bookings', label: 'Bookings', icon: CalendarDays },
 ];
 
 export function AdminSidebar({ name }: { name: string }) {
