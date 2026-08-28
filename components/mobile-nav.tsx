@@ -59,11 +59,6 @@ export function MobileNav({ user }: { user: CurrentUser | null }) {
                 List your property
               </Link>
             )}
-            {user?.profile?.role === 'admin' && (
-              <Link href="/admin" onClick={close} className="rounded-xl px-3 py-2.5 hover:bg-brand-50">
-                Admin
-              </Link>
-            )}
           </nav>
 
           {user && (
