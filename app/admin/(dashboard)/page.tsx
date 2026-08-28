@@ -1,19 +1,13 @@
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
 import { ArrowRight, Building2, Users2 } from 'lucide-react';
-import { getCurrentUser } from '@/lib/auth';
 import { getPendingHosts, getPendingListings } from '@/lib/data/admin';
 
 export default async function AdminPage() {
-  const user = await getCurrentUser();
-  if (!user) redirect('/login?redirect=/admin');
-  if (user.profile?.role !== 'admin') redirect('/');
-
   const [pendingHosts, pendingListings] = await Promise.all([getPendingHosts(), getPendingListings()]);
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
-      <h1 className="text-2xl font-bold text-brand-950">Admin</h1>
+      <h1 className="text-2xl font-bold text-brand-950">Dashboard</h1>
       <p className="mt-1 text-sm text-brand-500">Review host applications and listings before they go live.</p>
 
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">

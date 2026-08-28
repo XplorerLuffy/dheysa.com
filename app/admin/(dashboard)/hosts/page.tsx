@@ -1,28 +1,14 @@
-import Link from 'next/link';
-import { redirect } from 'next/navigation';
-import { ArrowLeft, Check, X } from 'lucide-react';
-import { getCurrentUser } from '@/lib/auth';
+import { Check, X } from 'lucide-react';
 import { getPendingHosts } from '@/lib/data/admin';
 import { approveHost, rejectHost } from '@/app/actions/admin';
 import { formatDate } from '@/lib/format';
 
 export default async function AdminHostsPage() {
-  const user = await getCurrentUser();
-  if (!user) redirect('/login?redirect=/admin/hosts');
-  if (user.profile?.role !== 'admin') redirect('/');
-
   const pendingHosts = await getPendingHosts();
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
-      <Link
-        href="/admin"
-        className="inline-flex items-center gap-1.5 text-sm font-medium text-brand-500 hover:text-brand-800"
-      >
-        <ArrowLeft size={14} />
-        Admin
-      </Link>
-      <h1 className="mt-4 text-2xl font-bold text-brand-950">Host applications</h1>
+      <h1 className="text-2xl font-bold text-brand-950">Host applications</h1>
 
       {pendingHosts.length === 0 ? (
         <div className="mt-8 rounded-3xl border border-dashed border-brand-200 bg-brand-50/50 px-6 py-16 text-center">

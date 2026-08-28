@@ -1,29 +1,15 @@
-import Link from 'next/link';
 import Image from 'next/image';
-import { redirect } from 'next/navigation';
-import { ArrowLeft, X } from 'lucide-react';
-import { getCurrentUser } from '@/lib/auth';
+import { X } from 'lucide-react';
 import { getPendingListings } from '@/lib/data/admin';
 import { approveListing, rejectListing } from '@/app/actions/admin';
 import { formatCurrency, titleCase } from '@/lib/format';
 
 export default async function AdminListingsPage() {
-  const user = await getCurrentUser();
-  if (!user) redirect('/login?redirect=/admin/listings');
-  if (user.profile?.role !== 'admin') redirect('/');
-
   const pendingListings = await getPendingListings();
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-10">
-      <Link
-        href="/admin"
-        className="inline-flex items-center gap-1.5 text-sm font-medium text-brand-500 hover:text-brand-800"
-      >
-        <ArrowLeft size={14} />
-        Admin
-      </Link>
-      <h1 className="mt-4 text-2xl font-bold text-brand-950">Listings pending review</h1>
+      <h1 className="text-2xl font-bold text-brand-950">Listings pending review</h1>
 
       {pendingListings.length === 0 ? (
         <div className="mt-8 rounded-3xl border border-dashed border-brand-200 bg-brand-50/50 px-6 py-16 text-center">
